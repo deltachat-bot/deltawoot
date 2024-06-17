@@ -5,12 +5,14 @@ it will echo back any message that has non-empty text and also supports the /hel
 """
 import logging
 import os
+import string
 import sys
+import random
+import secrets
 
 from deltachat_rpc_client import Bot, DeltaChat, EventType, Rpc, events
 
-from chatmaild.newemail import create_newemail_dict
-from chatmaild.config import read_config
+import quickndirty
 
 hooks = events.HookCollection()
 
@@ -46,10 +48,13 @@ def on_group_name_changed(event):
 
 
 @hooks.on(events.NewMessage(func=lambda e: not e.command))
-def echo(event):
+def pass_delta_to_woot(event):
     snapshot = event.message_snapshot
     if snapshot.text or snapshot.file:
-        snapshot.chat.send_message(text=snapshot.text, file=snapshot.file)
+        woot_contact = quickndirty.create_contact()
+        source_id = quickndirty.get_source_id_from_contact(woot_contact)
+        woot_conv = quickndirty.create_conversation(source_id)
+        quickndirty.send_message(woot_conv, snapshot.text)
 
 
 @hooks.on(events.NewMessage(command="/help"))
@@ -72,10 +77,12 @@ def main():
 
         bot = Bot(account, hooks)
         if not bot.is_configured():
-            config = read_config(sys.argv[1])
-            password = create_newemail_dict(config).get("password")
-            email = "echo@" + config.mail_domain
-            bot.configure(email, password)
+            user = "".join(random.choices(string.ascii_lowercase, k=9)) + "@nine.testrun.org"
+            password = "".join(
+                secrets.choice(string.ascii_lowercase)
+                for _ in range(20)
+            )
+            bot.configure(user, password)
         bot.run_forever()
 
 

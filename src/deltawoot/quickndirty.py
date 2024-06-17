@@ -14,6 +14,7 @@ if not profile_access_token:
 # according to https://www.chatwoot.com/developers/api/#tag/Contacts/operation/contactCreate
 headers = dict(api_access_token=profile_access_token)
 
+
 def create_contact(inbox_id=4):
     # create a contact
     payload = dict(inbox_id=4)
@@ -48,7 +49,6 @@ def create_conversation(source_id, inbox_id=4):
     return conversation_id
 
 
-
 def get_messages(conversation_id):
     r = requests.get(f"{url}/api/v1/accounts/{account_id}/conversations/{conversation_id}/messages",
                       headers=headers)
@@ -66,28 +66,29 @@ def send_message(conversation_id, content):
                       json=payload, headers=headers)
     r.raise_for_status()
 
-contact = create_contact()
-source_id = get_source_id_from_contact(contact)
-conversation_id = create_conversation(source_id)
 
-print(f"starting conversation {conversation_id}")
+if __name__ == "__main__":
+    contact = create_contact()
+    source_id = get_source_id_from_contact(contact)
+    conversation_id = create_conversation(source_id)
 
-import time
+    print(f"starting conversation {conversation_id}")
 
-while 1:
-    s = input("your-question: ")
-    send_message(conversation_id, s)
+    import time
 
-    num_messages = len(get_messages(conversation_id)["payload"])
     while 1:
-        time.sleep(1)
-        messages = get_messages(conversation_id)["payload"]
-        if len(messages) > num_messages:
-            for msg in messages[num_messages:]:
-                print("---> ", msg["content"])
-            num_messages = len(messages)
-            break
+        s = input("your-question: ")
+        send_message(conversation_id, s)
 
+        num_messages = len(get_messages(conversation_id)["payload"])
+        while 1:
+            time.sleep(1)
+            messages = get_messages(conversation_id)["payload"]
+            if len(messages) > num_messages:
+                for msg in messages[num_messages:]:
+                    print("---> ", msg["content"])
+                num_messages = len(messages)
+                break
 
-import pdb ; pdb.set_trace()
+    import pdb ; pdb.set_trace()
 
