@@ -12,7 +12,7 @@ import secrets
 
 from deltachat_rpc_client import Bot, DeltaChat, EventType, Rpc, events
 
-import quickndirty
+from woot import get_woot
 
 hooks = events.HookCollection()
 
@@ -50,11 +50,12 @@ def on_group_name_changed(event):
 @hooks.on(events.NewMessage(func=lambda e: not e.command))
 def pass_delta_to_woot(event):
     snapshot = event.message_snapshot
+    woot = snapshot.account.woot
     if snapshot.text or snapshot.file:
-        woot_contact = quickndirty.create_contact()
-        source_id = quickndirty.get_source_id_from_contact(woot_contact)
-        woot_conv = quickndirty.create_conversation(source_id)
-        quickndirty.send_message(woot_conv, snapshot.text)
+        woot_contact = woot.create_contact()
+        source_id = woot.get_source_id_from_contact(woot_contact)
+        woot_conv = woot.create_conversation(source_id)
+        woot.send_message(woot_conv, snapshot.text)
 
 
 @hooks.on(events.NewMessage(command="/help"))
@@ -76,6 +77,8 @@ def main():
         account = accounts[0] if accounts else deltachat.add_account()
 
         bot = Bot(account, hooks)
+        bot.account.woot = get_woot()
+
         if not bot.is_configured():
             user = "".join(random.choices(string.ascii_lowercase, k=9)) + "@nine.testrun.org"
             password = "".join(
