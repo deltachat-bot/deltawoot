@@ -9,6 +9,7 @@ import string
 import sys
 import random
 import secrets
+from pprint import pprint
 
 from deltachat_rpc_client import Bot, DeltaChat, EventType, Rpc, events
 
@@ -50,11 +51,15 @@ def on_group_name_changed(event):
 @hooks.on(events.NewMessage(func=lambda e: not e.command))
 def pass_delta_to_woot(event):
     snapshot = event.message_snapshot
-    woot = snapshot.account.woot
-    if snapshot.text or snapshot.file:
-        woot_contact = woot.create_contact()
-        source_id = woot.get_source_id_from_contact(woot_contact)
-        woot_conv = woot.create_conversation(source_id)
+    woot = snapshot.chat.account.woot
+    if snapshot.text:
+        sender = snapshot.sender.get_snapshot()
+        logging.info(str(sender))
+        woot_contact = woot.create_contact_if_not_exists(
+            sender.address,
+            sender.display_name,
+        )
+        woot_conv = woot.create_conversation_if_not_exists(woot_contact)
         woot.send_message(woot_conv, snapshot.text)
 
 
