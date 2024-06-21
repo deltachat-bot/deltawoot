@@ -8,7 +8,7 @@ For now, the only working thing is:
 ```
 python3 -m venv venv
 . venv/bin/activate
-pip install -e .
+pip install -e .[dev]
 PROFILE_ACCESS_TOKEN=asdf python3 src/deltawoot/quickndirty.py
 ```
 
