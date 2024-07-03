@@ -38,7 +38,6 @@ def pass_delta_to_woot(event):
     woot = snapshot.chat.account.woot
     if snapshot.text:
         sender = snapshot.sender.get_snapshot()
-        logging.info(str(sender))
         woot_contact = woot.create_contact_if_not_exists(
             sender.address,
             sender.display_name,

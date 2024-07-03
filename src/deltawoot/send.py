@@ -1,6 +1,5 @@
 import deltachat_rpc_client
 from flask import Flask, request
-from pprint import pprint
 
 
 def create_app(ac: deltachat_rpc_client.Account):

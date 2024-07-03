@@ -5,7 +5,7 @@ import time
 from pprint import pprint
 
 
-@pytest.mark.timeout(15)
+@pytest.mark.timeout(30)
 def test_send_message(delta, woot, lp):
     text = "".join(random.choices(string.ascii_lowercase, k=9))
 
@@ -28,3 +28,15 @@ def test_send_message(delta, woot, lp):
         time.sleep(10)
 
     assert woot.get_messages(wconversation)[-1]['content'] == text
+
+    lp.sec("Responding in Chatwoot")
+    text2 = "".join(random.choices(string.ascii_lowercase, k=9))
+    woot.send_message(
+        conversation=wconversation,
+        content=text2,
+        message_type='outgoing'
+    )
+
+    lp.sec("Waiting for new messages in Delta")
+    msg = delta.wait_for_incoming_msg()
+    assert msg.get_snapshot().text == text2

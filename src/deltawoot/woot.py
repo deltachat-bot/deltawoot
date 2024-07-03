@@ -89,11 +89,11 @@ class Woot:
         r.raise_for_status()
         return r.json()['payload']
 
-    def send_message(self, conversation, content):
+    def send_message(self, conversation, content, message_type='incoming'):
         # send a message
         payload = dict(
             content=content,
-            message_type="incoming",
+            message_type=message_type,
         )
         url = f"{self.baseurl}/accounts/{self.account_id}/conversations/{conversation['id']}/messages"
         r = requests.post(url, json=payload, headers=self.headers)
