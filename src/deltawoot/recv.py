@@ -9,11 +9,12 @@ import string
 import sys
 import random
 import secrets
-from pprint import pprint
+import threading
 
 from deltachat_rpc_client import Bot, DeltaChat, EventType, Rpc, events
 
 from woot import get_woot
+from send import create_app
 
 hooks = events.HookCollection()
 
@@ -29,23 +30,6 @@ def log_event(event):
 @hooks.on(events.RawEvent(EventType.ERROR))
 def log_error(event):
     logging.error(event.msg)
-
-
-@hooks.on(events.MemberListChanged)
-def on_memberlist_changed(event):
-    logging.info(
-        "member %s was %s", event.member, "added" if event.member_added else "removed"
-    )
-
-
-@hooks.on(events.GroupImageChanged)
-def on_group_image_changed(event):
-    logging.info("group image %s", "deleted" if event.image_deleted else "changed")
-
-
-@hooks.on(events.GroupNameChanged)
-def on_group_name_changed(event):
-    logging.info("group name changed, old name: %s", event.old_name)
 
 
 @hooks.on(events.NewMessage(func=lambda e: not e.command))
@@ -66,7 +50,8 @@ def pass_delta_to_woot(event):
 @hooks.on(events.NewMessage(command="/help"))
 def help_command(event):
     snapshot = event.message_snapshot
-    snapshot.chat.send_text("Send me any message and I will echo it back")
+    name = snapshot.chat.account.get_config('displayname')
+    snapshot.chat.send_text(f"Hi :) I am the helpdesk for {name}, what can I do for you?")
 
 
 def main():
@@ -91,7 +76,20 @@ def main():
                 for _ in range(20)
             )
             bot.configure(user, password)
+            bot.account.set_config('displayname', user)
+
+        flask = create_app(bot.account)
+        flaskthread = threading.Thread(
+            target=lambda: flask.run(
+                host='0.0.0.0',
+                port='5000',
+                debug=True,
+                use_reloader=False,
+            )
+        )
+        flaskthread.start()
         bot.run_forever()
+    flaskthread.join()
 
 
 if __name__ == "__main__":
