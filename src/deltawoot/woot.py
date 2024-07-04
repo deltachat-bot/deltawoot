@@ -1,6 +1,7 @@
 import requests
 import os
 import subprocess
+from pprint import pprint
 
 
 def get_woot():
@@ -89,14 +90,22 @@ class Woot:
         r.raise_for_status()
         return r.json()['payload']
 
-    def send_message(self, conversation, content, message_type='incoming'):
-        # send a message
-        payload = dict(
-            content=content,
-            message_type=message_type,
-        )
+    def send_message(self, conversation, content, message_type='incoming', filename=None, mime_type=None):
         url = f"{self.baseurl}/accounts/{self.account_id}/conversations/{conversation['id']}/messages"
-        r = requests.post(url, json=payload, headers=self.headers)
+        if filename:
+            file = {'attachments[]': (filename, open(filename, 'rb'), mime_type)}
+            data = {
+                'content': content,
+                'message_type': message_type,
+                'file_type': 'image',
+            }
+            r = requests.post(url, headers=self.headers, files=file, data=data)
+        else:
+            payload = {
+                'content': content,
+                'message_type': message_type,
+            }
+            r = requests.post(url, json=payload, headers=self.headers)
         r.raise_for_status()
 
 
@@ -108,7 +117,9 @@ def get_pass(filename: str) -> str:
 
 if __name__ == "__main__":
     w = get_woot()
-    for contact in w.get_contact():
+    for contact in w.create_contact_if_not_exists('nami@systemli.org'):
         print("Sending message to", contact['email'])
         conv = w.create_conversation_if_not_exists(contact)
-        w.send_message(conv, "testing woot")
+        for msg in w.get_messages(conv):
+            pprint(msg)
+            print()

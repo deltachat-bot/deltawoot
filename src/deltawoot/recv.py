@@ -36,14 +36,18 @@ def log_error(event):
 def pass_delta_to_woot(event):
     snapshot = event.message_snapshot
     woot = snapshot.chat.account.woot
-    if snapshot.text:
-        sender = snapshot.sender.get_snapshot()
-        woot_contact = woot.create_contact_if_not_exists(
-            sender.address,
-            sender.display_name,
-        )
-        woot_conv = woot.create_conversation_if_not_exists(woot_contact)
-        woot.send_message(woot_conv, snapshot.text)
+    sender = snapshot.sender.get_snapshot()
+    woot_contact = woot.create_contact_if_not_exists(
+        sender.address,
+        sender.display_name,
+    )
+    woot_conv = woot.create_conversation_if_not_exists(woot_contact)
+    woot.send_message(
+        woot_conv,
+        snapshot.text,
+        filename=snapshot.get('file'),
+        mime_type=snapshot.get('view_type').lower()
+    )
 
 
 @hooks.on(events.NewMessage(command="/help"))

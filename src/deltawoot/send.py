@@ -15,7 +15,8 @@ def create_app(ac: deltachat_rpc_client.Account):
         if message['sender'].get('email') != email:
             chat = ac.create_contact(email).create_chat()
             text = message['processed_message_content']
-            chat.send_text(text)
+            if text:
+                chat.send_text(text)
             for attachment in message.get('attachments', []):
                 url = attachment['data_url'].replace('http://', 'https://').replace(':3000/rails', '/rails')
                 filename = download_file(url)
