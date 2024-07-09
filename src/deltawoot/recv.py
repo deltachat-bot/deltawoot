@@ -81,6 +81,9 @@ def main():
             bot.configure(user, password)
             bot.account.set_config('displayname', user)
 
+        joincode = bot.account.get_qr_code()
+        logging.info("You can publish this invite code to your users: " + joincode[0])
+
         flask = create_app(bot.account)
         flaskthread = threading.Thread(
             target=lambda: flask.run(
