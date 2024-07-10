@@ -13,8 +13,8 @@ import threading
 
 from deltachat_rpc_client import Bot, DeltaChat, EventType, Rpc, events
 
-from woot import get_woot
-from send import create_app
+from deltawoot.woot import get_woot
+from deltawoot.send import create_app
 
 hooks = events.HookCollection()
 
@@ -58,6 +58,7 @@ def help_command(event):
 
 
 def main():
+    logging.basicConfig(level=logging.INFO)
     path = os.environ.get("PATH")
     venv_path = sys.argv[0].strip("echobot")
     os.environ["PATH"] = path + ":" + venv_path
@@ -73,11 +74,8 @@ def main():
         bot.account.woot = get_woot()
 
         if not bot.is_configured():
-            user = "".join(random.choices(string.ascii_lowercase, k=9)) + "@nine.testrun.org"
-            password = "".join(
-                secrets.choice(string.ascii_lowercase)
-                for _ in range(20)
-            )
+            user = os.getenv("DELTAWOOT_ADDR")
+            password = os.getenv("DELTAWOOT_PASSWORD")
             bot.configure(user, password)
             bot.account.set_config('displayname', user)
 
@@ -91,7 +89,8 @@ def main():
                 port='5000',
                 debug=True,
                 use_reloader=False,
-            )
+            ),
+            daemon=True,
         )
         flaskthread.start()
         bot.run_forever()
@@ -99,5 +98,4 @@ def main():
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
     main()
