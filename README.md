@@ -7,7 +7,7 @@ from now on called `example.org`.
 
 ## Get Started
 
-For now, the only working thing is:
+In principle, deltawoot can be configured and started like this:
 
 ```
 python3 -m venv venv
