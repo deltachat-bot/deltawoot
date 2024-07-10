@@ -80,7 +80,7 @@ def main():
             bot.account.set_config('displayname', user)
 
         joincode = bot.account.get_qr_code()
-        logging.info("You can publish this invite code to your users: " + joincode[0])
+        print("You can publish this invite code to your users: " + joincode, file=sys.stderr)
 
         flask = create_app(bot.account)
         flaskthread = threading.Thread(
