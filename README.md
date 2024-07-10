@@ -21,7 +21,7 @@ deltawoot
 ```
 
 You can get the `WOOT_PROFILE_ACCESS_TOKEN`
-at the bottom of <https://chatwoot.testrun.org/app/accounts/1/profile/settings>.
+at the bottom of `https://example.org/app/accounts/1/profile/settings`.
 For `DELTAWOOT_ADDR`
 and `DELTAWOOT_PASSWORD`
 you can use any email account.
