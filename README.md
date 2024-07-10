@@ -9,7 +9,10 @@ For now, the only working thing is:
 python3 -m venv venv
 . venv/bin/activate
 pip install -e .[dev]
-WOOT_PROFILE_ACCESS_TOKEN=s3cr3t DELTAWOOT_ADDR=deltawoot@nine.testrun.org DELTAWOOT_PASSWORD=p4$$w0rD deltawoot
+export WOOT_PROFILE_ACCESS_TOKEN=s3cr3t
+export DELTAWOOT_ADDR=deltawoot@nine.testrun.org
+export DELTAWOOT_PASSWORD=p4$$w0rD
+deltawoot
 ```
 
 You can get the `WOOT_PROFILE_ACCESS_TOKEN`
