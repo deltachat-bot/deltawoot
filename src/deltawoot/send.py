@@ -1,7 +1,6 @@
 import deltachat_rpc_client
 from flask import Flask, request
 import requests
-from pprint import pprint
 
 
 def create_app(ac: deltachat_rpc_client.Account):
@@ -9,9 +8,10 @@ def create_app(ac: deltachat_rpc_client.Account):
 
     @app.post("/")
     def pass_woot_to_delta():
+        if not request.json.get('conversation'):
+            return "message was from outside contact"
         email = request.json['conversation']['meta']['sender']['email']
         message = request.json['conversation']['messages'][0]
-        pprint(message)
         if message['sender'].get('email') != email:
             chat = ac.create_contact(email).create_chat()
             text = message['processed_message_content']
