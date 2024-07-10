@@ -85,3 +85,21 @@ Then you can start the docker container:
 ```
 docker run -v deltawoot:/home/deltawoot/files --env-file .env -p 5000:5000 -ti deltawoot
 ```
+
+Now you can look into the logs
+with `docker logs -ft deltawoot`,
+to find out the join code of the bot:
+
+```
+2024-07-10T14:20:22.427084078Z INFO:root:Running deltachat core v1.141.2
+2024-07-10T14:20:22.431288436Z You can publish this invite code to your users: OPENPGP4FPR:AA5FDEF02BFC355FDEA09FF4CA4AFCD2F065E613#a=deltawoot%40nine.testrun.org&n=deltawoot%40nine.testrun.org&i=q4DhTVr1T2A&s=mT3Bo9JDdVx
+2024-07-10T14:20:22.437551296Z  * Serving Flask app 'deltawoot-webhook'
+2024-07-10T14:20:22.438395066Z  * Debug mode: on
+2024-07-10T14:20:22.451052630Z INFO:root:src/securejoin.rs:126: Generated QR code.
+2024-07-10T14:20:22.451080018Z INFO:root:src/scheduler.rs:66: starting IO
+```
+
+Copy-paste the `OPENPGP4FPR:` and everything behind it
+into the form at <https://i.delta.chat>
+to generate an invite link which you can advertise on your contact page.
+
