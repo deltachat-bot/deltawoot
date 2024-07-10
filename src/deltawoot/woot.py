@@ -19,7 +19,7 @@ def get_woot():
         if not token:
             raise Exception("You have to set the WOOT_PROFILE_ACCESS_TOKEN environment variable")
     account_id = int(os.getenv("WOOT_ACCOUNT_ID", "1"))
-    inbox_id = int(os.getenv("WOOT_INBOX_ID", "4"))
+    inbox_id = int(os.getenv("WOOT_INBOX_ID", "1"))
     return Woot(domain, token, account_id, inbox_id)
 
 
