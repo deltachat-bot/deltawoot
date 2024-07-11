@@ -4,6 +4,7 @@ RUN adduser deltawoot
 WORKDIR /home/deltawoot
 COPY . .
 RUN chown deltawoot:deltawoot -R src
+RUN rm -rf build/
 USER deltawoot:deltawoot
 
 ENV PATH /home/deltawoot/.local/bin:/usr/bin:/usr/sbin:/bin:/sbin:${PATH}

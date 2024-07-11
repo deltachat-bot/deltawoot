@@ -78,9 +78,8 @@ def main():
             password = os.getenv("DELTAWOOT_PASSWORD")
             bot.configure(user, password)
 
-        bot.account.set_config('displayname', os.getenv("DELTAWOOT_NAME", user))
-        if os.getenv("DELTAWOOT_AVATAR"):
-            bot.account.set_avatar(os.getenv("DELTAWOOT_AVATAR"))
+        bot.account.set_config('displayname', os.getenv("DELTAWOOT_NAME", bot.account.get_config('addr')))
+        bot.account.set_avatar(os.getenv("DELTAWOOT_AVATAR", "src/deltawoot/avatar.jpg"))
 
         joincode = bot.account.get_qr_code()
         print("You can publish this invite code to your users: " + joincode, file=sys.stderr)
