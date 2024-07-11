@@ -1,6 +1,7 @@
 # deltawoot
 
-A deltachat client for chatwoot so users can talk to chatwoot encrypted.
+A deltachat bot which acts as a chatwoot client,
+so users can talk to chatwoot encrypted.
 
 ## Configure Chatwoot
 
@@ -45,6 +46,8 @@ export WOOT_DOMAIN=example.org
 export WOOT_PROFILE_ACCESS_TOKEN=s3cr3t
 export DELTAWOOT_ADDR=deltawoot@nine.testrun.org
 export DELTAWOOT_PASSWORD=p4$$w0rD
+export DELTAWOOT_NAME=Your friendly Chatwoot Bridge
+export DELTAWOOT_AVATAR=files/avatar.jpg
 export WOOT_INBOX_ID=1
 deltawoot
 ```
@@ -54,6 +57,13 @@ at the bottom of `https://example.org/app/accounts/1/profile/settings`.
 For `DELTAWOOT_ADDR`
 and `DELTAWOOT_PASSWORD`
 you can use any email account.
+
+`DELTAWOOT_NAME` will be the bot's display name in Delta Chat.
+
+`DELTAWOOT_AVATAR` will be the bot's avatar in Delta Chat;
+if you run deltawoot in docker,
+you need to put it into the docker volume,
+and prepend the path with `files/`.
 
 For the `WOOT_INBOX_ID`,
 go to the settings of the API channel you created above
