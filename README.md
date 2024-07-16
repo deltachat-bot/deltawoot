@@ -49,6 +49,7 @@ export DELTAWOOT_PASSWORD=p4$$w0rD
 export DELTAWOOT_NAME=Your friendly Chatwoot Bridge
 export DELTAWOOT_AVATAR=files/avatar.jpg
 export WOOT_INBOX_ID=1
+export WOOT_ACCOUNT_ID=1
 deltawoot
 ```
 
@@ -70,6 +71,14 @@ go to the settings of the API channel you created above
 at `example.org/app/accounts/1/settings/inboxes/list`,
 and look at the number at the end of the URL.
 
+For the `WOOT_ACCOUNT_ID`,
+go to the Chatwoot conversations list
+where you want Delta Chat messages to pop up,
+e.g. the one which appears directly after logging in.
+It should look like `https://example.org/app/accounts/1/dashboard`.
+The `WOOT_ACCOUNT_ID` should be the only number in the URL,
+in this example `1`.
+
 ### Run it with Docker
 
 First, cd into this repository and build the docker container:
@@ -85,9 +94,12 @@ It should look like this for example:
 ```
 WOOT_DOMAIN=example.org
 WOOT_PROFILE_ACCESS_TOKEN=s3cr3t
-WOOT_INBOX_ID=1
 DELTAWOOT_ADDR=deltawoot@nine.testrun.org
 DELTAWOOT_PASSWORD=p4$$w0rD
+DELTAWOOT_NAME=Your friendly Chatwoot Bridge
+DELTAWOOT_AVATAR=files/avatar.jpg
+WOOT_INBOX_ID=1
+WOOT_ACCOUNT_ID=1
 ```
 
 Then you can start the docker container:
