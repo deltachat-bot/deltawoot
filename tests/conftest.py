@@ -28,9 +28,25 @@ def bot_addr():
 @pytest.fixture()
 def woot(bot_addr, monkeypatch):
     path = os.getenv('PATH')
+    inbox_id = os.getenv('WOOT_INBOX_ID', '1')
+    account_id = os.getenv('WOOT_ACCOUNT_ID', '1')
+    domain = os.getenv('WOOT_DOMAIN', 'chatwoot.testrun.org')
+
     monkeypatch.delenv('PATH')  # let's assume pass isn't installed
+    monkeypatch.delenv('WOOT_INBOX_ID', raising=False)
+    monkeypatch.delenv('WOOT_ACCOUNT_ID', raising=False)
+    monkeypatch.delenv('WOOT_DOMAIN', raising=False)
     woot = get_woot()
+    assert woot.account_id == 1
+    assert woot.inbox_id == 1
+    assert woot.baseurl == f"https://chatwoot.testrun.org/api/v1"
+
+    monkeypatch.setenv('WOOT_INBOX_ID', inbox_id)
+    monkeypatch.setenv('WOOT_ACCOUNT_ID', account_id)
+    monkeypatch.setenv('WOOT_DOMAIN', domain)
     monkeypatch.setenv('PATH', path)
+    woot = get_woot()
+
     woot.addr = bot_addr
     return woot
 
