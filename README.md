@@ -44,12 +44,10 @@ python3 -m venv venv
 pip install -e .[dev]
 export WOOT_DOMAIN=example.org
 export WOOT_PROFILE_ACCESS_TOKEN=s3cr3t
-export DELTAWOOT_ADDR=deltawoot@nine.testrun.org
-export DELTAWOOT_PASSWORD=p4$$w0rD
-export DELTAWOOT_NAME=Your friendly Chatwoot Bridge
-export DELTAWOOT_AVATAR=files/avatar.jpg
 export WOOT_INBOX_ID=1
 export WOOT_ACCOUNT_ID=1
+export DELTAWOOT_ADDR=deltawoot@nine.testrun.org
+export DELTAWOOT_PASSWORD=p4$$w0rD
 deltawoot
 ```
 
@@ -59,17 +57,13 @@ For `DELTAWOOT_ADDR`
 and `DELTAWOOT_PASSWORD`
 you can use any email account.
 
-`DELTAWOOT_NAME` will be the bot's display name in Delta Chat.
-
-`DELTAWOOT_AVATAR` will be the bot's avatar in Delta Chat;
-if you run deltawoot in docker,
-you need to put it into the docker volume,
-and prepend the path with `files/`.
-
 For the `WOOT_INBOX_ID`,
 go to the settings of the API channel you created above
 at `example.org/app/accounts/1/settings/inboxes/list`,
 and look at the number at the end of the URL.
+The default is 1.
+You might need it if you get a 404 error in the logs
+when deltawoot tries to connect to the chatwoot API.
 
 For the `WOOT_ACCOUNT_ID`,
 go to the Chatwoot conversations list
@@ -77,7 +71,38 @@ where you want Delta Chat messages to pop up,
 e.g. the one which appears directly after logging in.
 It should look like `https://example.org/app/accounts/1/dashboard`.
 The `WOOT_ACCOUNT_ID` should be the only number in the URL,
-in this example `1`.
+in this example `1`, as it is the default.
+You might need it if you get a 404 error in the logs
+when deltawoot tries to connect to the chatwoot API.
+
+### Extended Configuration
+
+You can set other environment variables for configuring deltawoot,
+for example:
+
+```
+export DELTAWOOT_NAME=Your friendly Chatwoot Bridge
+export DELTAWOOT_AVATAR=files/avatar.jpg
+export DELTAWOOT_HELP_MSG="Hi, ask me for cooking recipes!"
+export DELTAWOOT_LEAVE_MSG="Please don't add me to groups, write me 1:1 instead."
+```
+
+`DELTAWOOT_NAME` will be the bot's display name in Delta Chat.
+
+`DELTAWOOT_AVATAR` will be the bot's avatar in Delta Chat;
+if you run deltawoot in docker,
+you need to put it into the docker volume,
+and prepend the path with `files/`.
+
+`DELTAWOOT_HELP_MSG` is what the bot replies
+if you send `/help` to it.
+You can customize it in your language.
+
+If you try to add the bot to a group,
+the bot will leave the group at once,
+but send the person who added it an explanation.
+`DELTAWOOT_LEAVE_MSG` is what the bot says
+in such a situation.
 
 ### Run it with Docker
 
@@ -100,6 +125,8 @@ DELTAWOOT_NAME=Your friendly Chatwoot Bridge
 DELTAWOOT_AVATAR=files/avatar.jpg
 WOOT_INBOX_ID=1
 WOOT_ACCOUNT_ID=1
+DELTAWOOT_HELP_MSG="Hi, ask me for cooking recipes!"
+DELTAWOOT_LEAVE_MSG="Please don't add me to groups, write me 1:1 instead."
 ```
 
 Then you can start the docker container:
