@@ -18,7 +18,7 @@ def test_send_message(delta, woot, lp):
     wconversation = woot.create_conversation_if_not_exists(wcontact)
 
     lp.sec("Polling for new messages in Chatwoot")
-    while not woot.get_messages(wconversation):
+    while len(woot.get_messages(wconversation)) < 2:
         lp.sec("printing contact")
         pprint(woot.create_contact_if_not_exists(delta.get_config('addr'), delta.get_config('displayname')))
         lp.sec("printing conversation")

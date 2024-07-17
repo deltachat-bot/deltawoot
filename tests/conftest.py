@@ -17,7 +17,7 @@ def delta(acfactory):
 @pytest.fixture()
 def woot():
     woot = get_woot()
-    woot.addr = os.getenv("WOOT_ADDR", "ebemtzxws@nine.testrun.org")
+    woot.addr = os.getenv("WOOT_ADDR", "deltawoot@nine.testrun.org")
     return woot
 
 
