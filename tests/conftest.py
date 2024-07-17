@@ -22,12 +22,15 @@ def delta(acfactory):
 
 @pytest.fixture()
 def bot_addr():
-    return os.getenv("WOOT_ADDR", "deltawoot@nine.testrun.org")
+    return os.getenv("DELTAWOOT_ADDR", "deltawoot@nine.testrun.org")
 
 
 @pytest.fixture()
-def woot(bot_addr):
+def woot(bot_addr, monkeypatch):
+    path = os.getenv('PATH')
+    monkeypatch.delenv('PATH')  # let's assume pass isn't installed
     woot = get_woot()
+    monkeypatch.setenv('PATH', path)
     woot.addr = bot_addr
     return woot
 
