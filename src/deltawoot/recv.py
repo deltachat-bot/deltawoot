@@ -12,6 +12,11 @@ from deltawoot.send import create_app
 hooks = events.HookCollection()
 
 
+DEFAULT_LEAVE_MSG = "Sorry, but you have to message me 1:1. Send /help to me to learn more."
+DEFAULT_HELP_MSG = "Hi :) I am the helpdesk for %s, what can I do for you?"
+DEFAULT_AVATAR_PATH = "src/deltawoot/avatar.jpg"
+
+
 @hooks.on(events.RawEvent)
 def log_event(event):
     if event.kind == EventType.INFO:
@@ -57,20 +62,20 @@ def help_command(event):
 
 
 def get_leave_msg():
-    default_leave_msg = "Sorry, but you have to message me 1:1. Send /help to me to learn more."
-    return os.getenv("DELTAWOOT_NO_GROUPS_MSG", default_leave_msg)
+    return os.getenv("DELTAWOOT_LEAVE_MSG", DEFAULT_LEAVE_MSG)
 
 
 def get_config_from_env(addr: str) -> dict:
     displayname = os.getenv("DELTAWOOT_NAME", addr)
-    help_msg = f"Hi :) I am the helpdesk for {displayname}, what can I do for you?"
+    help_msg = DEFAULT_HELP_MSG % (displayname, )
 
     return dict(
         user=os.getenv("DELTAWOOT_ADDR"),
         password=os.getenv("DELTAWOOT_PASSWORD"),
         displayname=displayname,
-        avatar_path=os.getenv("DELTAWOOT_AVATAR", "src/deltawoot/avatar.jpg"),
-        help_msg=os.getenv("DELTAWOOT_HELP_MSG", help_msg)
+        avatar_path=os.getenv("DELTAWOOT_AVATAR", DEFAULT_AVATAR_PATH),
+        help_msg=os.getenv("DELTAWOOT_HELP_MSG", help_msg),
+        leave_msg=get_leave_msg(),
     )
 
 

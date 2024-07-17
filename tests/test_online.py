@@ -7,6 +7,7 @@ from pprint import pprint
 from deltawoot.recv import get_leave_msg
 from deltachat_rpc_client.const import ChatType
 
+
 @pytest.mark.timeout(30)
 def test_send_message(delta, woot, lp):
     text = "".join(random.choices(string.ascii_lowercase, k=9))

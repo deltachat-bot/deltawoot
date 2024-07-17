@@ -9,7 +9,7 @@ def get_woot():
     token = os.getenv("WOOT_PROFILE_ACCESS_TOKEN", None)
     if not token:
         try:
-            token = get_pass("delta/chatwoot.testrun.org/profile_access_token")
+            token = get_pass("delta/chatwoot.testrun.org/profile_access_token").strip()
         except NotADirectoryError:
             # pass is not installed, ignore
             pass
