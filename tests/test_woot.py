@@ -14,8 +14,6 @@ def test_create_contact(woot, lp):
 
 
 def test_get_contact(woot):
-    if not os.getenv("CHATMAIL_DOMAIN"):
-        os.environ["CHATMAIL_DOMAIN"] = "nine.testrun.org"
-    email = get_temp_credentials()['email']
+    email = get_temp_credentials()["email"]
     woot.create_contact_if_not_exists(email)
     assert email == woot.get_contact(email)['email']

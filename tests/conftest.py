@@ -5,10 +5,15 @@ from deltachat_rpc_client.pytestplugin import acfactory
 from deltawoot.woot import get_woot
 
 
+@pytest.fixture(autouse=True, scope="session")
+def _setenv():
+    if not os.getenv("CHATMAIL_DOMAIN"):
+        # acfactory uses this environment variable
+        os.environ["CHATMAIL_DOMAIN"] = "nine.testrun.org"
+
+
 @pytest.fixture()
 def delta(acfactory):
-    if not os.getenv("CHATMAIL_DOMAIN"):
-        os.environ["CHATMAIL_DOMAIN"] = "nine.testrun.org"
     ac = acfactory.get_online_account()
     ac.set_config('displayname', 'CI account')
     return ac
