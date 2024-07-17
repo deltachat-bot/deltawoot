@@ -4,6 +4,8 @@ import string
 import time
 from pprint import pprint
 
+from deltawoot.recv import get_leave_msg
+from deltachat_rpc_client.const import ChatType
 
 @pytest.mark.timeout(30)
 def test_send_message(delta, woot, lp):
@@ -40,3 +42,27 @@ def test_send_message(delta, woot, lp):
     lp.sec("Waiting for new messages in Delta")
     msg = delta.wait_for_incoming_msg()
     assert msg.get_snapshot().text == text2
+
+
+@pytest.mark.timeout(30)
+def test_leave_groups(delta, woot, lp):
+    lp.sec("Creating Group")
+    dgroup = delta.create_group("You don't want to be in here")
+
+    lp.sec("Adding bot to it")
+    dcontact = delta.create_contact(woot.addr)
+    dgroup.add_contact(dcontact)
+    snapshot = dgroup.get_basic_snapshot()
+    assert snapshot.chat_type == ChatType.GROUP
+    lp.sec("Send message to group to create it")
+    dgroup.send_text("Hello, welcome to our group!")
+
+    lp.sec("Waiting for reply")
+    reply = delta.wait_for_incoming_msg().get_snapshot()
+    assert reply.text == get_leave_msg()
+    assert reply.quote
+    assert reply.chat != dgroup
+    delta.wait_for_incoming_msg()
+    assert len(dgroup.get_contacts()) == 1
+
+    assert not woot.get_contact(delta.get_config('addr'))

@@ -1,17 +1,10 @@
-#!/usr/bin/env python3
-"""Advanced echo bot example.
-
-it will echo back any message that has non-empty text and also supports the /help command.
-"""
 import logging
 import os
-import string
 import sys
-import random
-import secrets
 import threading
 
 from deltachat_rpc_client import Bot, DeltaChat, EventType, Rpc, events
+from deltachat_rpc_client.const import ChatType
 
 from deltawoot.woot import get_woot
 from deltawoot.send import create_app
@@ -35,6 +28,13 @@ def log_error(event):
 @hooks.on(events.NewMessage(func=lambda e: not e.command))
 def pass_delta_to_woot(event):
     snapshot = event.message_snapshot
+    if snapshot.chat.get_basic_snapshot().chat_type == ChatType.GROUP:
+        """The bot doesn't want to be in any group and will leave it."""
+        dm = snapshot.sender.create_chat()
+        dm.send_message(get_leave_msg(), quoted_msg=event.message_snapshot.id)
+        snapshot.chat.leave()
+        return
+
     woot = snapshot.chat.account.woot
     sender = snapshot.sender.get_snapshot()
     woot_contact = woot.create_contact_if_not_exists(
@@ -53,8 +53,56 @@ def pass_delta_to_woot(event):
 @hooks.on(events.NewMessage(command="/help"))
 def help_command(event):
     snapshot = event.message_snapshot
-    name = snapshot.chat.account.get_config('displayname')
-    snapshot.chat.send_text(f"Hi :) I am the helpdesk for {name}, what can I do for you?")
+    snapshot.chat.send_text(snapshot.chat.account.deltawoot_config.get('help_msg'))
+
+
+def get_leave_msg():
+    default_leave_msg = "Sorry, but you have to message me 1:1. Send /help to me to learn more."
+    return os.getenv("DELTAWOOT_NO_GROUPS_MSG", default_leave_msg)
+
+
+def get_config_from_env(addr: str) -> dict:
+    displayname = os.getenv("DELTAWOOT_NAME", addr)
+    help_msg = f"Hi :) I am the helpdesk for {displayname}, what can I do for you?"
+
+    return dict(
+        user=os.getenv("DELTAWOOT_ADDR"),
+        password=os.getenv("DELTAWOOT_PASSWORD"),
+        displayname=displayname,
+        avatar_path=os.getenv("DELTAWOOT_AVATAR", "src/deltawoot/avatar.jpg"),
+        help_msg=os.getenv("DELTAWOOT_HELP_MSG", help_msg)
+    )
+
+
+def configure_bot(bot, config):
+    if not bot.is_configured():
+        user = config.get('user')
+        password = config.get('password')
+        bot.configure(user, password)
+
+    bot.account.set_config('displayname', config.get('displayname'))
+    bot.account.set_avatar(config.get('avatar_path'))
+    bot.account.deltawoot_config = config
+    return bot
+
+
+def get_flaskthread(bot):
+    flaskapp = create_app(bot.account)
+    return threading.Thread(
+        target=lambda: flaskapp.run(
+            host='0.0.0.0',
+            port='5000',
+            debug=True,
+            use_reloader=False,
+        ),
+        daemon=True,
+    )
+
+
+def get_bot(rpc):
+    deltachat = DeltaChat(rpc)
+    account = deltachat.get_all_accounts()[0]
+    return Bot(account, hooks)
 
 
 def main():
@@ -63,37 +111,16 @@ def main():
     venv_path = sys.argv[0].strip("echobot")
     os.environ["PATH"] = path + ":" + venv_path
     with Rpc() as rpc:
-        deltachat = DeltaChat(rpc)
-        system_info = deltachat.get_system_info()
-        logging.info("Running deltachat core %s", system_info.deltachat_core_version)
-
-        accounts = deltachat.get_all_accounts()
-        account = accounts[0] if accounts else deltachat.add_account()
-
-        bot = Bot(account, hooks)
+        bot = get_bot(rpc)
         bot.account.woot = get_woot()
 
-        if not bot.is_configured():
-            user = os.getenv("DELTAWOOT_ADDR")
-            password = os.getenv("DELTAWOOT_PASSWORD")
-            bot.configure(user, password)
-
-        bot.account.set_config('displayname', os.getenv("DELTAWOOT_NAME", bot.account.get_config('addr')))
-        bot.account.set_avatar(os.getenv("DELTAWOOT_AVATAR", "src/deltawoot/avatar.jpg"))
+        config = get_config_from_env(bot.account.get_config('addr'))
+        bot = configure_bot(bot, config)
 
         joincode = bot.account.get_qr_code()
         print("You can publish this invite code to your users: " + joincode, file=sys.stderr)
 
-        flask = create_app(bot.account)
-        flaskthread = threading.Thread(
-            target=lambda: flask.run(
-                host='0.0.0.0',
-                port='5000',
-                debug=True,
-                use_reloader=False,
-            ),
-            daemon=True,
-        )
+        flaskthread = get_flaskthread(bot)
         flaskthread.start()
         bot.run_forever()
     flaskthread.join()

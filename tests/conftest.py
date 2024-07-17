@@ -11,13 +11,19 @@ def delta(acfactory):
         os.environ["CHATMAIL_DOMAIN"] = "nine.testrun.org"
     ac = acfactory.get_online_account()
     ac.set_config('displayname', 'CI account')
+    print("Creating Test account", ac.get_config('addr'))
     return ac
 
 
 @pytest.fixture()
-def woot():
+def bot_addr():
+    return os.getenv("WOOT_ADDR", "deltawoot@nine.testrun.org")
+
+
+@pytest.fixture()
+def woot(bot_addr):
     woot = get_woot()
-    woot.addr = os.getenv("WOOT_ADDR", "deltawoot@nine.testrun.org")
+    woot.addr = bot_addr
     return woot
 
 
