@@ -8,7 +8,7 @@ from deltawoot.recv import get_leave_msg
 from deltachat_rpc_client.const import ChatType
 
 
-@pytest.mark.timeout(30)
+@pytest.mark.timeout(25)
 def test_send_message(delta, woot, lp):
     text = "".join(random.choices(string.ascii_lowercase, k=9))
 
@@ -17,8 +17,15 @@ def test_send_message(delta, woot, lp):
     dchat = dcontact.create_chat()
     dchat.send_text(text)
 
-    wcontact = woot.create_contact_if_not_exists(delta.get_config('addr'), delta.get_config('displayname'))
-    wconversation = woot.create_conversation_if_not_exists(wcontact)
+    wcontact = None
+    while not wcontact:
+        wcontact = woot.get_contact(delta.get_config('addr'))
+        time.sleep(1)  # let's avoid rate limits
+    wconversations = []
+    while not wconversations:
+        wconversations = woot.get_conversations(wcontact)
+        time.sleep(1)  # let's avoid rate limits
+    wconversation = wconversations[0]
 
     lp.sec("Polling for new messages in Chatwoot")
     while len(woot.get_messages(wconversation)) < 2:

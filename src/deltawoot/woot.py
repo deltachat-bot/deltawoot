@@ -1,10 +1,11 @@
+import logging
 import requests
 import os
 import subprocess
 from pprint import pprint
 
 
-def get_woot():
+def get_woot(inbox_id=None, inbox_name="Delta Chat"):
     domain = os.getenv("WOOT_DOMAIN", "chatwoot.testrun.org")
     token = os.getenv("WOOT_PROFILE_ACCESS_TOKEN", None)
     if not token:
@@ -19,16 +20,39 @@ def get_woot():
         if not token:
             raise Exception("You have to set the WOOT_PROFILE_ACCESS_TOKEN environment variable")
     account_id = int(os.getenv("WOOT_ACCOUNT_ID", "1"))
-    inbox_id = int(os.getenv("WOOT_INBOX_ID", "1"))
-    return Woot(domain, token, account_id, inbox_id)
+    inbox_id = os.getenv("WOOT_INBOX_ID", inbox_id)
+    return Woot(domain, token, account_id, inbox_id, inbox_name=inbox_name)
 
 
 class Woot:
-    def __init__(self, domain: str, token: str, account_id: int, inbox_id: int):
+    def __init__(self, domain: str, token: str, account_id: int, inbox_id, inbox_name: str):
         self.baseurl = f"https://{domain}/api/v1"
         self.account_id = account_id
-        self.inbox_id = inbox_id
         self.headers = dict(api_access_token=token)
+        try:
+            self.inbox_id = int(inbox_id)
+        except TypeError:
+            self.create_inbox(inbox_name)
+
+    def create_inbox(self, inbox_name):
+        """Creates a new API inbox in chatwoot, no agents are added to it so far.
+        This only runs if there is
+        neither a WOOT_INBOX_ID environment variable specifying the inbox,
+        nor a ui.woot_inbox_id deltachat config key from last time.
+        """
+        payload = dict(
+            name=inbox_name,
+            channel=dict(
+                type="api",
+                webhook_url="",
+            )
+        )
+        url = f"{self.baseurl}/accounts/{self.account_id}/inboxes"
+        r = requests.post(url, json=payload, headers=self.headers)
+        r.raise_for_status()
+        self.inbox_id = r.json()["channel_id"]
+        link = self.baseurl[:-6] + f"app/accounts/{self.account_id}/settings/inboxes/{self.inbox_id}"
+        logging.info("New chatwoot inbox created for deltawoot, please add agents to it here: %s", link)
 
     def create_contact_if_not_exists(self, email: str, name: str = None):
         contact = self.get_contact(email)

@@ -3,16 +3,13 @@
 A deltachat bot which acts as a chatwoot client,
 so users can talk to chatwoot encrypted.
 
+
 ## Configure Chatwoot
 
 You need to connect this bot to a working <https://www.chatwoot.com/> instance,
 from now on called `example.org`.
 Let's configure it first.
 
-### Create an API channel
-
-You need to [create an API channel](https://www.chatwoot.com/hc/user-guide/articles/1677839703-how-to-create-an-api-channel-inbox#setup-the-api-channel).
-Make sure to leave the webhook URL empty.
 
 ### Configure a callback URL
 
@@ -25,14 +22,17 @@ For example,
 If the bot is running on the same docker host as the chatwoot instance,
 enter `http://host.docker.internal:5000`,
 and enable the `message_created` option.
+
 In your chatwoot instance's docker-compose file,
-you will also need to add this to the sidekiq container:
+you will also need to add this to the sidekiq container,
+so chatwoot can talk to the deltawoot docker container:
 
 ```
   sidekiq:
     extra_hosts:
     - "host.docker.internal:host-gateway"
 ```
+
 
 ## Get Started
 
@@ -44,7 +44,6 @@ python3 -m venv venv
 pip install -e .[dev]
 export WOOT_DOMAIN=example.org
 export WOOT_PROFILE_ACCESS_TOKEN=s3cr3t
-export WOOT_INBOX_ID=1
 export WOOT_ACCOUNT_ID=1
 export DELTAWOOT_ADDR=deltawoot@nine.testrun.org
 export DELTAWOOT_PASSWORD=p4$$w0rD
@@ -57,14 +56,6 @@ For `DELTAWOOT_ADDR`
 and `DELTAWOOT_PASSWORD`
 you can use any email account.
 
-For the `WOOT_INBOX_ID`,
-go to the settings of the API channel you created above
-at `example.org/app/accounts/1/settings/inboxes/list`,
-and look at the number at the end of the URL.
-The default is 1.
-You might need it if you get a 404 error in the logs
-when deltawoot tries to connect to the chatwoot API.
-
 For the `WOOT_ACCOUNT_ID`,
 go to the Chatwoot conversations list
 where you want Delta Chat messages to pop up,
@@ -74,6 +65,7 @@ The `WOOT_ACCOUNT_ID` should be the only number in the URL,
 in this example `1`, as it is the default.
 You might need it if you get a 404 error in the logs
 when deltawoot tries to connect to the chatwoot API.
+
 
 ### Extended Configuration
 
@@ -85,6 +77,7 @@ export DELTAWOOT_NAME=Your friendly Chatwoot Bridge
 export DELTAWOOT_AVATAR=files/avatar.jpg
 export DELTAWOOT_HELP_MSG="Hi, ask me for cooking recipes!"
 export DELTAWOOT_LEAVE_MSG="Please don't add me to groups, write me 1:1 instead."
+export WOOT_INBOX_ID=1
 ```
 
 `DELTAWOOT_NAME` will be the bot's display name in Delta Chat.
@@ -103,6 +96,16 @@ the bot will leave the group at once,
 but send the person who added it an explanation.
 `DELTAWOOT_LEAVE_MSG` is what the bot says
 in such a situation.
+
+By default, deltawoot creates an API channel itself.
+But if you want to use an existing API channel,
+you can manually set the `WOOT_INBOX_ID`.
+Go to the settings of the API channel you want to use
+at `example.org/app/accounts/1/settings/inboxes/list`,
+click on the Settings,
+look at the number at the end of the URL,
+and add it as `WOOT_INBOX_ID`.
+
 
 ### Run it with Docker
 
@@ -123,10 +126,9 @@ DELTAWOOT_ADDR=deltawoot@nine.testrun.org
 DELTAWOOT_PASSWORD=p4$$w0rD
 DELTAWOOT_NAME=Your friendly Chatwoot Bridge
 DELTAWOOT_AVATAR=files/avatar.jpg
-WOOT_INBOX_ID=1
 WOOT_ACCOUNT_ID=1
 DELTAWOOT_HELP_MSG="Hi, ask me for cooking recipes!"
-DELTAWOOT_LEAVE_MSG="Please don't add me to groups, write me 1:1 instead."
+DELTAWOOT_LEAVE_MSG="I'm too shy for groups, write me 1:1 instead."
 ```
 
 Then you can start the docker container:
@@ -135,12 +137,30 @@ Then you can start the docker container:
 docker run -v deltawoot:/home/deltawoot/files --env-file .env -p 5000:5000 -ti deltawoot
 ```
 
+
+### Add Agents to the Delta Chat Inbox
+
+Now you have to add some agents to your Inbox,
+so they can actually read the messages
+incoming via Delta Chat.
+
+For this, go to `https://example.org/app/accounts/1/settings/inboxes/list`
+and next to "Delta Chat",
+click on the settings wheel.
+Then click on "Collaborators",
+add all agents you want to handle the incoming requests,
+and finally click on "Update".
+
+
+### Publish the Invite Link for Your Bot
+
 Now you can look into the logs
 with `docker logs -ft deltawoot`,
 to find out the join code of the bot:
 
 ```
 2024-07-10T14:20:22.427084078Z INFO:root:Running deltachat core v1.141.2
+2024-07-10T14:20:22.820477302Z INFO:root:New chatwoot inbox created for deltawoot, please add agents to it here: https://example.org/app/accounts/1/settings/inboxes/1
 2024-07-10T14:20:22.431288436Z You can publish this invite code to your users: OPENPGP4FPR:AA5FDEF02BFC355FDEA09FF4CA4AFCD2F065E613#a=deltawoot%40nine.testrun.org&n=deltawoot%40nine.testrun.org&i=q4DhTVr1T2A&s=mT3Bo9JDdVx
 2024-07-10T14:20:22.437551296Z  * Serving Flask app 'deltawoot-webhook'
 2024-07-10T14:20:22.438395066Z  * Debug mode: on

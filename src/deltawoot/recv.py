@@ -117,10 +117,12 @@ def main():
     os.environ["PATH"] = path + ":" + venv_path
     with Rpc() as rpc:
         bot = get_bot(rpc)
-        bot.account.woot = get_woot()
 
         config = get_config_from_env(bot.account.get_config('addr'))
         bot = configure_bot(bot, config)
+
+        bot.account.woot = get_woot(inbox_id=bot.account.get_config('ui.woot_inbox_id'))
+        bot.account.set_config('ui.woot_inbox_id', str(bot.account.woot.inbox_id))
 
         joincode = bot.account.get_qr_code()
         print("You can publish this invite code to your users: " + joincode, file=sys.stderr)

@@ -1,5 +1,6 @@
 import os
 import pytest
+import requests
 from deltachat_rpc_client.pytestplugin import acfactory
 
 from deltawoot.woot import get_woot
@@ -28,7 +29,7 @@ def bot_addr():
 @pytest.fixture()
 def woot(bot_addr, monkeypatch):
     path = os.getenv('PATH')
-    inbox_id = os.getenv('WOOT_INBOX_ID', '1')
+    inbox_id = os.getenv('WOOT_INBOX_ID')
     account_id = os.getenv('WOOT_ACCOUNT_ID', '1')
     domain = os.getenv('WOOT_DOMAIN', 'chatwoot.testrun.org')
 
@@ -36,16 +37,20 @@ def woot(bot_addr, monkeypatch):
     monkeypatch.delenv('WOOT_INBOX_ID', raising=False)
     monkeypatch.delenv('WOOT_ACCOUNT_ID', raising=False)
     monkeypatch.delenv('WOOT_DOMAIN', raising=False)
-    woot = get_woot()
+    woot = get_woot(inbox_name="testing")
     assert woot.account_id == 1
-    assert woot.inbox_id == 1
     assert woot.baseurl == f"https://chatwoot.testrun.org/api/v1"
 
-    monkeypatch.setenv('WOOT_INBOX_ID', inbox_id)
+    assert woot.inbox_id != inbox_id
+    url = f"{woot.baseurl}/accounts/{woot.account_id}/inboxes/{woot.inbox_id}"
+    r = requests.get(url, headers=woot.headers)
+    assert r.json()['name'] == "testing"
+    assert r.json()['channel_type'] == "Channel::Api"
+
     monkeypatch.setenv('WOOT_ACCOUNT_ID', account_id)
     monkeypatch.setenv('WOOT_DOMAIN', domain)
     monkeypatch.setenv('PATH', path)
-    woot = get_woot()
+    woot = get_woot(inbox_id=inbox_id, inbox_name="testing")
 
     woot.addr = bot_addr
     return woot
