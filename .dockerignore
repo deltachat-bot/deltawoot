@@ -33,9 +33,6 @@ var/
 .installed.cfg
 *.egg
 *.log
-MANIFEST.in
-pyproject.toml
-setup.cfg
 
 # Vim swap files
 **/*.swp
