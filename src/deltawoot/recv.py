@@ -80,10 +80,9 @@ def get_config_from_env(addr: str) -> dict:
 
 
 def configure_bot(bot, config):
-    if not bot.is_configured():
-        user = config.get('user')
-        password = config.get('password')
-        bot.configure(user, password)
+    user = config.get('user')
+    password = config.get('password')
+    bot.configure(user, password)
 
     bot.account.set_config('displayname', config.get('displayname'))
     bot.account.set_avatar(config.get('avatar_path'))
