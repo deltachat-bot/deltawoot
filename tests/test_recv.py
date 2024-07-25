@@ -1,3 +1,5 @@
+import os
+
 import pytest
 from deltachat_rpc_client.pytestplugin import get_temp_credentials
 from deltachat_rpc_client import Rpc
@@ -7,7 +9,10 @@ from deltawoot.recv import get_bot, get_config_from_env, configure_bot, DEFAULT_
 from deltawoot.send import download_file
 
 
-def test_config_options(bot_addr, monkeypatch):
+def test_config_options(bot_addr, monkeypatch, tmp_path):
+    cwd = os.getcwd()
+    os.chdir(tmp_path)
+
     monkeypatch.delenv('DELTAWOOT_AVATAR', raising=False)
     monkeypatch.delenv('DELTAWOOT_LEAVE_MSG', raising=False)
     monkeypatch.delenv('DELTAWOOT_HELP_MSG', raising=False)
@@ -30,8 +35,7 @@ def test_config_options(bot_addr, monkeypatch):
         assert config.get('help_msg') == DEFAULT_HELP_MSG % (bot_addr,)
 
         new_display_name = "Soo friendly"
-        download_file("https://delta.chat/assets/blog/green-check-chain.png")
-        new_avatar_path = "green-check-chain.png"
+        new_avatar_path = download_file("https://delta.chat/assets/blog/green-check-chain.png")
         new_leave_msg = "Извините, но вы должны связаться со мной 1:1. Отправьте /help мне, чтобы узнать больше."
         new_help_msg = "Привет :) Я из службы поддержки, чем могу помочь?"
         monkeypatch.setenv('DELTAWOOT_AVATAR', new_avatar_path)

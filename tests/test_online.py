@@ -1,10 +1,11 @@
 import pytest
+import os
 import random
 import string
 import time
 from pprint import pprint
 
-from deltawoot.recv import get_leave_msg
+from deltawoot.recv import get_leave_msg, DEFAULT_AVATAR_PATH
 from deltachat_rpc_client.const import ChatType
 
 
@@ -15,7 +16,7 @@ def test_send_message(delta, woot, lp):
     lp.sec(f"Sending message '{text}' with Delta Chat")
     dcontact = delta.create_contact(woot.addr)
     dchat = dcontact.create_chat()
-    dchat.send_text(text)
+    dmsg = dchat.send_message(text, file=DEFAULT_AVATAR_PATH)
 
     wcontact = None
     while not wcontact:
@@ -37,19 +38,26 @@ def test_send_message(delta, woot, lp):
         pprint(woot.get_messages(wconversation))
         time.sleep(10)
 
-    assert woot.get_messages(wconversation)[-1]['content'] == text
+    msg1 = woot.get_messages(wconversation)[-1]
+
+    assert msg1['content'] == text
+    assert msg1['attachments'][0]['file_size'] == os.path.getsize(DEFAULT_AVATAR_PATH)
 
     lp.sec("Responding in Chatwoot")
     text2 = "".join(random.choices(string.ascii_lowercase, k=9))
     woot.send_message(
         conversation=wconversation,
         content=text2,
-        message_type='outgoing'
+        message_type='outgoing',
+        filename=DEFAULT_AVATAR_PATH,
+        mime_type=dmsg.get_snapshot().get('view_type').lower()
     )
 
     lp.sec("Waiting for new messages in Delta")
-    msg = delta.wait_for_incoming_msg()
-    assert msg.get_snapshot().text == text2
+    msg2 = delta.wait_for_incoming_msg().get_snapshot()
+    assert msg2.text == text2
+    msg3 = delta.wait_for_incoming_msg().get_snapshot()
+    assert os.path.getsize(msg3.file) == os.path.getsize(DEFAULT_AVATAR_PATH)
 
 
 @pytest.mark.timeout(30)

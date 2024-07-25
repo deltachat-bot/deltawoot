@@ -14,7 +14,7 @@ hooks = events.HookCollection()
 
 DEFAULT_LEAVE_MSG = "Sorry, but you have to message me 1:1. Send /help to me to learn more."
 DEFAULT_HELP_MSG = "Hi :) I am the helpdesk for %s, what can I do for you?"
-DEFAULT_AVATAR_PATH = "src/deltawoot/avatar.jpg"
+DEFAULT_AVATAR_PATH = os.path.join(os.getcwd(), "src", "deltawoot", "avatar.jpg")
 
 
 @hooks.on(events.RawEvent)
@@ -105,7 +105,10 @@ def get_flaskthread(bot):
 
 def get_bot(rpc):
     deltachat = DeltaChat(rpc)
-    account = deltachat.get_all_accounts()[0]
+    try:
+        account = deltachat.get_all_accounts()[0]
+    except IndexError:
+        account = deltachat.add_account()
     return Bot(account, hooks)
 
 

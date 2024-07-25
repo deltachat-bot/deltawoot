@@ -1,3 +1,6 @@
+import os.path
+from pathlib import Path
+
 import deltachat_rpc_client
 from flask import Flask, request
 import requests
@@ -34,7 +37,9 @@ def download_file(url: str) -> str:
     :return: the file name of the file on the system.
     """
     r = requests.get(url, stream=True)
-    file_name = url.split("/")[-1]
+    dir_name = os.path.join(os.getcwd(), "files", "attachments")
+    file_name = os.path.join(dir_name, url.split("/")[-1])
+    Path(dir_name).mkdir(parents=True, exist_ok=True)
     with open(file_name, 'wb') as f:
         for chunk in r.iter_content(chunk_size=1024):
             if chunk:  # filter out keep-alive new chunks
