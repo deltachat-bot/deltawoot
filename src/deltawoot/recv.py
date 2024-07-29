@@ -40,6 +40,10 @@ def pass_delta_to_woot(event):
         snapshot.chat.leave()
         return
 
+    if snapshot.is_info:
+        logging.info("Not forwarding info message to chatwoot.")
+        return
+
     woot = snapshot.chat.account.woot
     sender = snapshot.sender.get_snapshot()
     woot_contact = woot.create_contact_if_not_exists(

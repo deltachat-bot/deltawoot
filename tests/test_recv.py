@@ -1,12 +1,24 @@
 import os
 
 import pytest
-from deltachat_rpc_client.pytestplugin import get_temp_credentials
-from deltachat_rpc_client import Rpc
+from deltachat_rpc_client.pytestplugin import get_temp_credentials, acfactory
+from deltachat_rpc_client import Rpc, AttrDict
 from deltachat_rpc_client.rpc import JsonRpcError
 
-from deltawoot.recv import get_bot, get_config_from_env, configure_bot, DEFAULT_AVATAR_PATH, DEFAULT_LEAVE_MSG, DEFAULT_HELP_MSG
+from deltawoot.recv import (
+    get_bot, get_config_from_env, configure_bot, pass_delta_to_woot,
+    DEFAULT_AVATAR_PATH, DEFAULT_LEAVE_MSG, DEFAULT_HELP_MSG
+)
 from deltawoot.send import download_file
+
+
+def test_dont_pass_info_messages(acfactory):
+    bot, user = acfactory.get_online_accounts(2)
+    joincode = bot.get_qr_code()
+    chat = user.secure_join(joincode)
+    info_msg = chat.get_messages()[-1]
+    event = AttrDict(command="", payload="", message_snapshot=info_msg.get_snapshot())
+    assert not pass_delta_to_woot(event)
 
 
 def test_config_options(bot_addr, monkeypatch, tmp_path):
