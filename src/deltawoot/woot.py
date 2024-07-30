@@ -121,7 +121,7 @@ class Woot:
             data = {
                 'content': content,
                 'message_type': message_type,
-                'file_type': 'image',
+                'file_type': mime_type,
             }
             r = requests.post(url, headers=self.headers, files=file, data=data)
         else:

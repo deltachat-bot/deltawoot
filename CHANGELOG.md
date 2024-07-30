@@ -9,6 +9,8 @@
 
 - Don't pass deltachat-internal info messages to chatwoot
 
+- Display voice messages properly in chatwoot
+
 ## 1.0.0
 
 - Release initial version
