@@ -1,4 +1,6 @@
 import logging
+import sys
+
 import requests
 import os
 import subprocess
@@ -116,6 +118,7 @@ class Woot:
 
     def send_message(self, conversation, content, message_type='incoming', filename=None, mime_type=None):
         url = f"{self.baseurl}/accounts/{self.account_id}/conversations/{conversation['id']}/messages"
+        print("mime_type:", mime_type, file=sys.stderr)
         if filename:
             file = {'attachments[]': (filename, open(filename, 'rb'), mime_type)}
             data = {
