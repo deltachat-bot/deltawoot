@@ -1,4 +1,5 @@
 FROM python:3.11-slim
+ARG CACHEBUST=1
 
 RUN adduser deltawoot
 WORKDIR /home/deltawoot
