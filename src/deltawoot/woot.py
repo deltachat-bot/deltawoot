@@ -1,4 +1,5 @@
-from loguru import logger
+import logging
+import sys
 
 import requests
 import os
@@ -53,7 +54,7 @@ class Woot:
         r.raise_for_status()
         self.inbox_id = r.json()["channel_id"]
         link = self.baseurl[:-6] + f"app/accounts/{self.account_id}/settings/inboxes/{self.inbox_id}"
-        logger.info("New chatwoot inbox created for deltawoot, please add agents to it here: %s", link)
+        logging.info("New chatwoot inbox created for deltawoot, please add agents to it here: %s", link)
 
     def create_contact_if_not_exists(self, email: str, name: str = None):
         contact = self.get_contact(email)
@@ -117,7 +118,7 @@ class Woot:
 
     def send_message(self, conversation, content, message_type='incoming', filename=None, mime_type=None):
         url = f"{self.baseurl}/accounts/{self.account_id}/conversations/{conversation['id']}/messages"
-        logger.info("mime_type:", mime_type)
+        print("mime_type:", mime_type, file=sys.stderr)
         if filename:
             file = {'attachments[]': (filename, open(filename, 'rb'), mime_type)}
             data = {

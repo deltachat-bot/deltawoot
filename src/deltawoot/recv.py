@@ -1,4 +1,4 @@
-from loguru import logger
+import logging
 import os
 import sys
 import threading
@@ -20,20 +20,20 @@ DEFAULT_AVATAR_PATH = os.path.join(os.getcwd(), "src", "deltawoot", "avatar.jpg"
 @hooks.on(events.RawEvent)
 def log_event(event):
     if event.kind == EventType.INFO:
-        logger.info(event.msg)
+        logging.info(event.msg)
     elif event.kind == EventType.WARNING:
-        logger.warning(event.msg)
+        logging.warning(event.msg)
 
 
 @hooks.on(events.RawEvent(EventType.ERROR))
 def log_error(event):
-    logger.error(event.msg)
+    logging.error(event.msg)
 
 
 @hooks.on(events.NewMessage(func=lambda e: not e.command))
 def pass_delta_to_woot(event):
     snapshot = event.message_snapshot
-    logger.info("chat type:", snapshot.chat.get_basic_snapshot().chat_type)
+    print("chat type:", snapshot.chat.get_basic_snapshot().chat_type, file=sys.stderr)
     if snapshot.chat.get_basic_snapshot().chat_type == ChatType.GROUP:
         """The bot doesn't want to be in any group and will leave it."""
         dm = snapshot.sender.create_chat()
@@ -42,7 +42,7 @@ def pass_delta_to_woot(event):
         return
 
     if snapshot.is_info:
-        logger.info("Not forwarding info message to chatwoot.")
+        logging.info("Not forwarding info message to chatwoot.")
         return
 
     woot = snapshot.chat.account.woot
@@ -121,8 +121,7 @@ def get_bot(rpc):
 
 
 def main():
-    log_format = "<green>{time:YYYY-MM-DD HH:mm:ss.SSS zz}</green> | <level>{level: <8}</level> | <yellow>Line {line: >4} ({file}):</yellow> <b>{message}</b>"
-    logger.add(sys.stderr, level="INFO", format=log_format, colorize=True, backtrace=True, diagnose=True)
+    logging.basicConfig(level=logging.INFO)
     path = os.environ.get("PATH")
     venv_path = sys.argv[0].strip("echobot")
     os.environ["PATH"] = path + ":" + venv_path
