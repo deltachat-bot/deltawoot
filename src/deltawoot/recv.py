@@ -34,6 +34,7 @@ def log_error(event):
 def pass_delta_to_woot(event):
     snapshot = event.message_snapshot
     print("chat type:", snapshot.chat.get_basic_snapshot().chat_type, file=sys.stderr)
+    print(ChatType.GROUP, file=sys.stderr)
     if snapshot.chat.get_basic_snapshot().chat_type == ChatType.GROUP:
         """The bot doesn't want to be in any group and will leave it."""
         dm = snapshot.sender.create_chat()
