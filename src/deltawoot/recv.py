@@ -53,7 +53,7 @@ def pass_delta_to_woot(event):
     )
     woot_conv = woot.create_conversation_if_not_exists(woot_contact)
     file_type = snapshot.get('view_type').lower()
-    if file_type == "voice":
+    if file_type == "voice" or file_type == "audio":
         file_type = "audio/" + snapshot.get('file').split(".")[-1]
     woot.send_message(
         woot_conv,
