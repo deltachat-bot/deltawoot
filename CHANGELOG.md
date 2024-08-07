@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased Changes
+## 1.1.0
 
 - Store attachments in `files/attachments/`
   [#4](https://github.com/deltachat-bot/deltawoot/issues/4)
