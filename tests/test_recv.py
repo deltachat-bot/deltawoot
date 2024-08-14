@@ -2,7 +2,7 @@ import os
 
 import pytest
 from deltachat_rpc_client.pytestplugin import get_temp_credentials, acfactory
-from deltachat_rpc_client import Rpc, AttrDict
+from deltachat_rpc_client import Rpc, AttrDict, Chat
 from deltachat_rpc_client.rpc import JsonRpcError
 
 from deltawoot.recv import (
@@ -10,6 +10,17 @@ from deltawoot.recv import (
     DEFAULT_AVATAR_PATH, DEFAULT_LEAVE_MSG, DEFAULT_HELP_MSG
 )
 from deltawoot.send import download_file
+
+
+@pytest.mark.timeout(30)
+def test_securejoin(delta, bot, lp):
+    joincode = bot.account.get_qr_code()
+    chat = delta.secure_join(joincode)
+    assert type(chat) == Chat
+
+    lp.sec("Waiting for welcome message")
+    while not delta.wait_for_incoming_msg().get_snapshot().text == DEFAULT_HELP_MSG:
+        print(delta.wait_for_incoming_msg().get_snapshot().text)
 
 
 def test_dont_pass_info_messages(acfactory):
