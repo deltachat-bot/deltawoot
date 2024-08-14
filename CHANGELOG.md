@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.2.0
+
+- Send welcome message when user scans QR code
+  [#11](https://github.com/deltachat-bot/deltawoot/pull/11)
+
 ## 1.1.0
 
 - Store attachments in `files/attachments/`
