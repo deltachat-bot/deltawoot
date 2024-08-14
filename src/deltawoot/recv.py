@@ -23,6 +23,11 @@ def log_event(event):
         logging.info(event.msg)
     elif event.kind == EventType.WARNING:
         logging.warning(event.msg)
+    if event.kind == EventType.SECUREJOIN_INVITER_PROGRESS:
+        if event.progress == 1000:
+            contact = event.account.create_contact(event.contact_id)
+            chat = event.account.get_chat_by_contact(contact)
+            chat.send_text(event.account.deltawoot_config.get('help_msg'))
 
 
 @hooks.on(events.RawEvent(EventType.ERROR))
@@ -41,7 +46,7 @@ def pass_delta_to_woot(event):
         return
 
     if snapshot.is_info:
-        logging.info("Not forwarding info message to chatwoot.")
+        logging.info("Not forwarding info message to chatwoot:", snapshot.id)
         return
 
     woot = snapshot.chat.account.woot
