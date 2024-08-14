@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.2.0
+## Unreleased Changes
 
 - Send welcome message when user scans QR code
   [#11](https://github.com/deltachat-bot/deltawoot/pull/11)
