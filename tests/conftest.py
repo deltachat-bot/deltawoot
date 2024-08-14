@@ -1,13 +1,8 @@
 import os
-import threading
-
-import deltachat_rpc_client
 import pytest
 import requests
 from deltachat_rpc_client.pytestplugin import acfactory
-from deltachat_rpc_client import Bot
 
-from deltawoot.recv import get_bot, configure_bot, get_config_from_env
 from deltawoot.woot import get_woot
 
 
@@ -19,31 +14,11 @@ def _setenv():
 
 
 @pytest.fixture()
-def delta(acfactory) -> deltachat_rpc_client.Account:
+def delta(acfactory):
     ac = acfactory.get_online_account()
     ac.set_config('displayname', 'CI account')
     print("Creating Test account", ac.get_config('addr'))
     return ac
-
-
-@pytest.mark.xfail()
-@pytest.fixture()
-def bot(acfactory) -> Bot:
-    with deltachat_rpc_client.Rpc() as rpc:
-        ac = acfactory.get_online_account()
-        os.environ['DELTAWOOT_ADDR'] = ac.get_config("addr")
-        os.environ['DELTAWOOT_PASSWORD'] = ac.get_config("mail_pw")
-
-        bot = get_bot(rpc)
-        config = get_config_from_env(bot.account.get_config('addr'))
-        bot = configure_bot(bot, config)
-        print("bot address", bot.account.get_config("addr"))
-        botthread = threading.Thread(
-            target=lambda: bot.run_forever(),
-        )
-        botthread.start()
-        yield bot
-        botthread.join()
 
 
 @pytest.fixture()
