@@ -2,14 +2,32 @@ import os
 
 import pytest
 from deltachat_rpc_client.pytestplugin import get_temp_credentials, acfactory
-from deltachat_rpc_client import Rpc, AttrDict
+from deltachat_rpc_client import Rpc, AttrDict, EventType, Message
 from deltachat_rpc_client.rpc import JsonRpcError
+from deltachat_rpc_client.events import RawEvent
 
 from deltawoot.recv import (
-    get_bot, get_config_from_env, configure_bot, pass_delta_to_woot,
+    get_bot, get_config_from_env, configure_bot, pass_delta_to_woot, log_event,
     DEFAULT_AVATAR_PATH, DEFAULT_LEAVE_MSG, DEFAULT_HELP_MSG
 )
 from deltawoot.send import download_file
+
+
+def test_securejoin(delta):
+    delta.deltawoot_config = dict(help_msg=DEFAULT_HELP_MSG)
+    contact = delta.create_contact("test@example.org")
+
+    event = RawEvent()
+    event.kind = EventType.SECUREJOIN_INVITER_PROGRESS
+    event.progress = 500
+    event.msg = Message(id=999, account=delta)
+    event.account = delta
+    event.contact_id = contact.id
+    log_event(event)
+    assert len(delta.get_chatlist()) == 2
+    event.progress = 1000
+    log_event(event)
+    assert delta.get_chat_by_contact(contact).get_messages()[-1].get_snapshot().text == DEFAULT_HELP_MSG
 
 
 def test_dont_pass_info_messages(acfactory):

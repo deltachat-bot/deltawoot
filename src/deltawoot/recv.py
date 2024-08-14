@@ -26,7 +26,7 @@ def log_event(event):
     if event.kind == EventType.SECUREJOIN_INVITER_PROGRESS:
         if event.progress == 1000:
             contact = event.account.create_contact(event.contact_id)
-            chat = event.account.get_chat_by_contact(contact)
+            chat = contact.create_chat()
             chat.send_text(event.account.deltawoot_config.get('help_msg'))
 
 
