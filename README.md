@@ -20,7 +20,7 @@ and configure a new webhook.
 
 For example,
 If the bot is running on the same docker host as the chatwoot instance,
-enter `http://host.docker.internal:5000` (deltawoot.internal is the container name),
+enter `http://deltawoot.internal:5000` (deltawoot.internal is the container name),
 and enable the `message_created` option.
 
 
