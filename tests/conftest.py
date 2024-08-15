@@ -31,15 +31,12 @@ def woot(bot_addr, monkeypatch):
     path = os.getenv('PATH')
     inbox_id = os.getenv('WOOT_INBOX_ID')
     account_id = os.getenv('WOOT_ACCOUNT_ID', '1')
-    domain = os.getenv('WOOT_DOMAIN', 'chatwoot.testrun.org')
-
+    monkeypatch.setenv('WOOT_API_URL', os.getenv('WOOT_API_URL', 'https://chatwoot.testrun.org/api/v1'))
     monkeypatch.delenv('PATH')  # let's assume pass isn't installed
     monkeypatch.delenv('WOOT_INBOX_ID', raising=False)
     monkeypatch.delenv('WOOT_ACCOUNT_ID', raising=False)
-    monkeypatch.delenv('WOOT_DOMAIN', raising=False)
     woot = get_woot(inbox_name="testing")
     assert woot.account_id == 1
-    assert woot.baseurl == f"https://chatwoot.testrun.org/api/v1"
 
     assert woot.inbox_id != inbox_id
     url = f"{woot.baseurl}/accounts/{woot.account_id}/inboxes/{woot.inbox_id}"
@@ -48,7 +45,7 @@ def woot(bot_addr, monkeypatch):
     assert r.json()['channel_type'] == "Channel::Api"
 
     monkeypatch.setenv('WOOT_ACCOUNT_ID', account_id)
-    monkeypatch.setenv('WOOT_DOMAIN', domain)
+    print(os.getenv("WOOT_API_URL"))
     monkeypatch.setenv('PATH', path)
     woot = get_woot(inbox_id=inbox_id, inbox_name="testing")
 

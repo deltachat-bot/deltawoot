@@ -8,7 +8,7 @@ from pprint import pprint
 
 
 def get_woot(inbox_id=None, inbox_name="Delta Chat"):
-    domain = os.getenv("WOOT_DOMAIN", "chatwoot.testrun.org")
+    api_url = os.getenv("WOOT_API_URL", "http://rails:3000/api/v1")
     token = os.getenv("WOOT_PROFILE_ACCESS_TOKEN", None)
     if not token:
         try:
@@ -23,16 +23,12 @@ def get_woot(inbox_id=None, inbox_name="Delta Chat"):
             raise Exception("You have to set the WOOT_PROFILE_ACCESS_TOKEN environment variable")
     account_id = int(os.getenv("WOOT_ACCOUNT_ID", "1"))
     inbox_id = os.getenv("WOOT_INBOX_ID", inbox_id)
-    return Woot(domain, token, account_id, inbox_id, inbox_name=inbox_name)
+    return Woot(api_url, token, account_id, inbox_id, inbox_name=inbox_name)
 
 
 class Woot:
-    def __init__(self, domain: str, token: str, account_id: int, inbox_id, inbox_name: str):
-        self.baseurl = "http://rails:3000/api/v1"  # first try if inside docker compose
-        try:
-            requests.get(self.baseurl)
-        except requests.exceptions.ConnectionError:
-            self.baseurl = f"https://{domain}/api/v1"
+    def __init__(self, api_url: str, token: str, account_id: int, inbox_id, inbox_name: str):
+        self.baseurl = api_url
         self.account_id = account_id
         self.headers = dict(api_access_token=token)
         try:
