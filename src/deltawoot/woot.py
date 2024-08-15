@@ -28,7 +28,11 @@ def get_woot(inbox_id=None, inbox_name="Delta Chat"):
 
 class Woot:
     def __init__(self, domain: str, token: str, account_id: int, inbox_id, inbox_name: str):
-        self.baseurl = f"https://{domain}/api/v1"
+        self.baseurl = "http://rails:3000/api/v1"  # first try if inside docker compose
+        try:
+            requests.get(self.baseurl)
+        except requests.exceptions.ConnectionError:
+            self.baseurl = f"https://{domain}/api/v1"
         self.account_id = account_id
         self.headers = dict(api_access_token=token)
         try:
