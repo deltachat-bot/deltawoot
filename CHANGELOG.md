@@ -2,6 +2,9 @@
 
 ## Unreleased Changes
 
+- Support docker compose setup
+  [#12](https://github.com/deltachat-bot/deltawoot/pull/12)
+
 - Send welcome message when user scans QR code
   [#11](https://github.com/deltachat-bot/deltawoot/pull/11)
 
