@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased Changes
+## 1.2.0
 
 - Support docker compose setup
   [#12](https://github.com/deltachat-bot/deltawoot/pull/12)
