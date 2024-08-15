@@ -4,14 +4,14 @@ A deltachat bot which acts as a chatwoot client,
 so users can talk to chatwoot encrypted.
 
 
-## Configure Chatwoot
+## Installation
 
 You need to connect this bot to a working <https://www.chatwoot.com/> instance,
 from now on called `example.org`.
-Let's configure it first.
+Let's configure chatwoot first:
 
 
-### Configure a callback URL
+### Configure a callback URL in chatwoot
 
 The bot needs to be reachable via HTTP from the chatwoot instance,
 and you need to enter a callback URL into the chatwoot web interface.
@@ -20,38 +20,60 @@ and configure a new webhook.
 
 For example,
 If the bot is running on the same docker host as the chatwoot instance,
-enter `http://host.docker.internal:5000`,
+enter `http://host.docker.internal:5000` (deltawoot.internal is the container name),
 and enable the `message_created` option.
 
-In your chatwoot instance's docker-compose file,
-you will also need to add this to the sidekiq container,
-so chatwoot can talk to the deltawoot docker container:
+
+### Add deltawoot to chatwoot's docker-compose.yml
+
+If you installed chatwoot via docker compose
+like [here](https://web.archive.org/web/20230601030620/https://www.chatwoot.com/docs/self-hosted/deployment/docker/),
+you can add the deltawoot container
+to your chatwoot's docker-compose.yml
+like this:
 
 ```
-  sidekiq:
-    extra_hosts:
-    - "host.docker.internal:host-gateway"
+services:
+  [...]  # here all the chatwoot containers are defined, see https://raw.githubusercontent.com/chatwoot/chatwoot/develop/docker-compose.production.yaml
+  deltawoot:
+    image: missytake/deltawoot:latest
+    restart: unless-stopped
+    container_name: deltawoot.internal
+    env_file: /home/chatwoot/.env
+    volumes:
+      - deltawoot:/home/deltawoot/files
+    ports:
+      - "127.0.0.1:5000:5000"
+volumes:
+  deltawoot:
+```
+
+Then you need to add your environment variables to an `.env` file.
+In the example docker-compose.yml above
+it is in `/home/chatwoot/.env`,
+if you use a different file you should change the path.
+It should look like this for example
+(more on the meaning of the config parameters below):
+
+```
+WOOT_PROFILE_ACCESS_TOKEN=s3cr3t
+DELTAWOOT_ADDR=deltawoot@nine.testrun.org
+DELTAWOOT_PASSWORD=p4$$w0rD
+WOOT_ACCOUNT_ID=1
+```
+
+Then you can start the docker container:
+
+```
+docker compose up -d
 ```
 
 
-## Get Started
-
-In principle, deltawoot can be configured and started like this:
-
-```
-python3 -m venv venv
-. venv/bin/activate
-pip install -e .[dev]
-export WOOT_DOMAIN=example.org
-export WOOT_PROFILE_ACCESS_TOKEN=s3cr3t
-export WOOT_ACCOUNT_ID=1
-export DELTAWOOT_ADDR=deltawoot@nine.testrun.org
-export DELTAWOOT_PASSWORD=p4$$w0rD
-deltawoot
-```
+### Config Parameters
 
 You can get the `WOOT_PROFILE_ACCESS_TOKEN`
 at the bottom of `https://example.org/app/accounts/1/profile/settings`.
+
 For `DELTAWOOT_ADDR`
 and `DELTAWOOT_PASSWORD`
 you can use any email account.
@@ -67,18 +89,26 @@ You might need it if you get a 404 error in the logs
 when deltawoot tries to connect to the chatwoot API.
 
 
-### Extended Configuration
+#### Extended Configuration
 
 You can set other environment variables for configuring deltawoot,
 for example:
 
 ```
-export DELTAWOOT_NAME=Your friendly Chatwoot Bridge
-export DELTAWOOT_AVATAR=files/avatar.jpg
-export DELTAWOOT_HELP_MSG="Hi, ask me for cooking recipes!"
-export DELTAWOOT_LEAVE_MSG="Please don't add me to groups, write me 1:1 instead."
-export WOOT_INBOX_ID=1
+WOOT_API_URL=https://example.org/api/v1
+DELTAWOOT_NAME=Your friendly Chatwoot Bridge
+DELTAWOOT_AVATAR=files/avatar.jpg
+DELTAWOOT_HELP_MSG="Hi, ask me for cooking recipes!"
+DELTAWOOT_LEAVE_MSG="Please don't add me to groups, write me 1:1 instead."
+WOOT_INBOX_ID=1
 ```
+
+`WOOT_API_URL` is only needed
+if chatwoot and deltawoot are running on separate hosts;
+make sure chatwoot's API URL is reachable from deltawoot's host.
+In such a case you also need to reconfigure the callback URL
+in chatwoot's Integration settings,
+the one we configured in the beginning.
 
 `DELTAWOOT_NAME` will be the bot's display name in Delta Chat.
 
@@ -87,7 +117,8 @@ if you run deltawoot in docker,
 you need to put it into the docker volume,
 and prepend the path with `files/`.
 
-`DELTAWOOT_HELP_MSG` is what the bot replies
+`DELTAWOOT_HELP_MSG` is what the bot will say
+if you scan it's invite code or
 if you send `/help` to it.
 You can customize it in your language.
 
@@ -107,37 +138,6 @@ look at the number at the end of the URL,
 and add it as `WOOT_INBOX_ID`.
 
 
-### Run it with Docker
-
-First, cd into this repository and build the docker container:
-
-```
-docker build -t deltawoot .
-docker volume create deltawoot
-```
-
-Then you need to add your environment variables to an `.env` file.
-It should look like this for example:
-
-```
-WOOT_DOMAIN=example.org
-WOOT_PROFILE_ACCESS_TOKEN=s3cr3t
-DELTAWOOT_ADDR=deltawoot@nine.testrun.org
-DELTAWOOT_PASSWORD=p4$$w0rD
-DELTAWOOT_NAME=Your friendly Chatwoot Bridge
-DELTAWOOT_AVATAR=files/avatar.jpg
-WOOT_ACCOUNT_ID=1
-DELTAWOOT_HELP_MSG="Hi, ask me for cooking recipes!"
-DELTAWOOT_LEAVE_MSG="I'm too shy for groups, write me 1:1 instead."
-```
-
-Then you can start the docker container:
-
-```
-docker run -v deltawoot:/home/deltawoot/files --env-file .env -p 5000:5000 -ti deltawoot
-```
-
-
 ### Add Agents to the Delta Chat Inbox
 
 Now you have to add some agents to your Inbox,
@@ -155,7 +155,7 @@ and finally click on "Update".
 ### Publish the Invite Link for Your Bot
 
 Now you can look into the logs
-with `docker logs -ft deltawoot`,
+with `docker logs -ft deltawoot.internal`,
 to find out the join code of the bot:
 
 ```
@@ -171,4 +171,23 @@ to find out the join code of the bot:
 Copy-paste the `OPENPGP4FPR:` and everything behind it
 into the form at <https://i.delta.chat>
 to generate an invite link which you can advertise on your contact page.
+
+## Development
+
+If you want to develop without docker,
+you can configure and start deltawoot like this:
+
+```
+python3 -m venv venv
+. venv/bin/activate
+pip install -e .[dev]
+export WOOT_URL=https://example.org/api/v1
+export WOOT_PROFILE_ACCESS_TOKEN=s3cr3t
+export WOOT_ACCOUNT_ID=1
+export DELTAWOOT_ADDR=deltawoot@nine.testrun.org
+export DELTAWOOT_PASSWORD=p4$$w0rD
+deltawoot
+```
+
+You can run the tests with `pytest`.
 
