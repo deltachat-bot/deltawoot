@@ -1,6 +1,7 @@
 import os.path
+import sys
 from pathlib import Path
-from urllib.parse import unquote
+from urllib.parse import unquote, urlparse
 
 import deltachat_rpc_client
 from flask import Flask, request
@@ -22,7 +23,11 @@ def create_app(ac: deltachat_rpc_client.Account):
             if text:
                 chat.send_text(text)
             for attachment in message.get('attachments', []):
-                url = attachment['data_url'].replace('http://', 'https://').replace(':3000/rails', '/rails')
+                print(attachment['data_url'], file=sys.stderr)
+                url = attachment['data_url']
+                if not os.getenv("WOOT_API_URL"):
+                    url = urlparse(url)._replace(netloc="rails:3000", scheme="http").geturl()
+                print(url, file=sys.stderr)
                 filename = download_file(url)
                 chat.send_file(filename)
             return "successfully delivered"

@@ -55,8 +55,10 @@ def test_send_message(delta, woot, lp):
 
     lp.sec("Waiting for new messages in Delta")
     msg2 = delta.wait_for_incoming_msg().get_snapshot()
+    lp.sec("First message arrived in Delta")
     assert msg2.text == text2
     msg3 = delta.wait_for_incoming_msg().get_snapshot()
+    lp.sec("Second message arrived in Delta")
     assert os.path.getsize(msg3.file) == os.path.getsize(DEFAULT_AVATAR_PATH)
 
 
