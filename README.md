@@ -191,3 +191,17 @@ deltawoot
 
 You can run the tests with `pytest`.
 
+## Release Checklist
+
+- [ ] Update version number in changelog
+- [ ] Update version number in setup.cfg
+- [ ] commit and tag with "1.x.x"
+- [ ] push this commit to a new branch, open a PR, copy this checklist there
+- [ ] `python -m build`
+- [ ] `twine check dist/*`
+- [ ] `twine upload dist/*`
+- [ ] `docker build -t missytake/deltawoot`
+- [ ] `docker tag missytake/deltawoot missytake/deltawoot:1.x.x`
+- [ ] `docker push missytake/deltawoot:1.x.x`
+- [ ] merge this PR and make a github release
+
