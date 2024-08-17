@@ -103,6 +103,7 @@ DELTAWOOT_AVATAR=files/avatar.jpg
 DELTAWOOT_HELP_MSG="Hi, ask me for cooking recipes!"
 DELTAWOOT_LEAVE_MSG="Please don't add me to groups, write me 1:1 instead."
 WOOT_INBOX_ID=1
+SENTRY_TOKEN=https://8sahf8dhdufs9fijis9fd@o7898929132132345.ingest.de.sentry.io/3247829357927898
 ```
 
 `WOOT_API_URL` is only needed
@@ -138,6 +139,9 @@ at `example.org/app/accounts/1/settings/inboxes/list`,
 click on the Settings,
 look at the number at the end of the URL,
 and add it as `WOOT_INBOX_ID`.
+
+If you want to monitor deltawoot errors with <https://sentry.io>,
+you can specify a `SENTRY_TOKEN` as environment variable.
 
 
 ### Add Agents to the Delta Chat Inbox

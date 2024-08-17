@@ -11,6 +11,11 @@ import requests
 def create_app(ac: deltachat_rpc_client.Account):
     app = Flask("deltawoot-webhook")
 
+    @app.get("/error")
+    def error():
+        1 / 0
+        return "Testing sentry_sdk"
+
     @app.post("/")
     def pass_woot_to_delta():
         if not request.json.get('conversation'):

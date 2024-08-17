@@ -5,6 +5,7 @@ import threading
 
 from deltachat_rpc_client import Bot, DeltaChat, EventType, Rpc, events
 from deltachat_rpc_client.const import ChatType
+import sentry_sdk
 
 from deltawoot.woot import get_woot
 from deltawoot.send import create_app
@@ -125,6 +126,17 @@ def get_bot(rpc):
 
 
 def main():
+    if os.getenv("SENTRY_TOKEN"):
+        sentry_sdk.init(
+            dsn=os.getenv("SENTRY_TOKEN"),
+            # Set traces_sample_rate to 1.0 to capture 100%
+            # of transactions for tracing.
+            traces_sample_rate=1.0,
+            # Set profiles_sample_rate to 1.0 to profile 100%
+            # of sampled transactions.
+            # We recommend adjusting this value in production.
+            profiles_sample_rate=1.0,
+        )
     logging.basicConfig(level=logging.INFO)
     path = os.environ.get("PATH")
     venv_path = sys.argv[0].strip("echobot")

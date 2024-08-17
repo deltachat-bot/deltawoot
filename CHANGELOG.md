@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased Changes
+
+- Add sentry support for monitoring
+
 ## 1.2.0
 
 - Support docker compose setup
