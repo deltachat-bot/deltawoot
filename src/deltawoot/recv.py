@@ -47,7 +47,7 @@ def pass_delta_to_woot(event):
         return
 
     if snapshot.is_info:
-        logging.info("Not forwarding info message to chatwoot:", snapshot.id)
+        logging.info("Not forwarding info message to chatwoot: " + str(snapshot.id))
         return
 
     woot = snapshot.chat.account.woot
