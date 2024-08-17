@@ -75,6 +75,10 @@ docker compose up -d
 
 You can get the `WOOT_PROFILE_ACCESS_TOKEN`
 at the bottom of `https://example.org/app/accounts/1/profile/settings`.
+Note: after starting chatwoot, you need to give
+the account you use to generate the `WOOT_PROFILE_ACCESS_TOKEN`
+operator access to the "Deltawoot" API inbox
+at `https://example.org/app/accounts/1/settings/inboxes/list`.
 
 For `DELTAWOOT_ADDR`
 and `DELTAWOOT_PASSWORD`
