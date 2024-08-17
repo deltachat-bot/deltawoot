@@ -40,6 +40,8 @@ services:
     restart: unless-stopped
     container_name: deltawoot.internal
     env_file: /home/chatwoot/.env
+    depends_on:
+      - rails
     volumes:
       - deltawoot:/home/deltawoot/files
     ports:
