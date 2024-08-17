@@ -199,15 +199,19 @@ You can run the tests with `pytest`.
 
 ## Release Checklist
 
+- [ ] `git checkout -b prepare-1.x.x`
 - [ ] Update version number in changelog
 - [ ] Update version number in setup.cfg
-- [ ] commit and tag with "1.x.x"
-- [ ] push this commit to a new branch, open a PR, copy this checklist there
+- [ ] `git commit -am "prepare 1.x.x release"`
+- [ ] `git tag 1.x.x`
+- [ ] `git push --tags -u origin prepare-1.x.x`
+- [ ] open a PR, copy this checklist there
 - [ ] `python -m build`
 - [ ] `twine check dist/*`
 - [ ] `twine upload dist/*`
-- [ ] `docker build -t missytake/deltawoot`
-- [ ] `docker tag missytake/deltawoot missytake/deltawoot:1.x.x`
-- [ ] `docker push missytake/deltawoot:1.x.x`
+- [ ] `sudo docker build -t missytake/deltawoot .`
+- [ ] `sudo docker tag missytake/deltawoot missytake/deltawoot:1.x.x`
+- [ ] `sudo docker push missytake/deltawoot:1.x.x`
+- [ ] `sudo docker push missytake/deltawoot:latest`
 - [ ] merge this PR and make a github release
 
