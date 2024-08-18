@@ -81,9 +81,11 @@ class Woot:
                 return contact
 
     def create_conversation_if_not_exists(self, contact: dict) -> dict:
-        try:
-            conversation = self.get_conversations(contact)[0]
-        except IndexError:
+        conversations = self.get_conversations(contact)
+        for conversation in conversations:
+            if conversation['messages'][0]['inbox_id'] == self.inbox_id:
+                return conversation
+        else:
             source_id = self.get_source_id_from_contact(contact)
             payload = dict(
                 source_id=source_id,
@@ -102,10 +104,10 @@ class Woot:
         return r.json()['payload']
 
     def get_source_id_from_contact(self, contact):
-        contact_inboxes = contact["contact_inboxes"]
-        assert len(contact_inboxes) == 1
-        contact_inbox = contact_inboxes[0]
-        return contact_inbox["source_id"]
+        for inbox in contact["contact_inboxes"]:
+            if inbox['inbox']['id'] == self.inbox_id:
+                return inbox["source_id"]
+        return contact['contact_inboxes'][0]['source_id']  # if this fails, create conversation in web interface
 
     def get_messages(self, conversation: dict) -> list:
         payload = dict(

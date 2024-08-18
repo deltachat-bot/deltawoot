@@ -1,3 +1,4 @@
+import logging
 import os.path
 import sys
 from pathlib import Path
@@ -19,6 +20,7 @@ def create_app(ac: deltachat_rpc_client.Account):
     @app.post("/")
     def pass_woot_to_delta():
         if not request.json['inbox']['id'] == ac.woot.inbox_id:
+            logging.info("Inbox %s ignoring msg from other Inbox %s" % (ac.woot.inbox_id, request.json['inbox']['id']))
             return "ignoring message from other Inbox"
         if not request.json.get('conversation'):
             return "message was from outside contact"
