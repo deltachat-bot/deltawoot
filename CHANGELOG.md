@@ -2,6 +2,8 @@
 
 ## Unreleased Changes
 
+## 1.3.1
+
 - Ignore messages from other inboxes
 
 ## 1.3.0
