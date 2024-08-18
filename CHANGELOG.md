@@ -2,6 +2,8 @@
 
 ## Unreleased Changes
 
+- Ignore messages from other inboxes
+
 ## 1.3.0
 
 - Add sentry support for monitoring
