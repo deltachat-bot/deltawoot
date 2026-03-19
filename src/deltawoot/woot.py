@@ -1,10 +1,12 @@
+import json
 import logging
-import sys
-
-import requests
 import os
+import requests
 import subprocess
+import sys
 from pprint import pprint
+
+from deltachat_rpc_client import Account
 
 
 def get_woot(inbox_id=None, inbox_name="Delta Chat"):
@@ -56,22 +58,34 @@ class Woot:
         link = self.baseurl[:-6] + f"app/accounts/{self.account_id}/settings/inboxes/{self.inbox_id}"
         logging.info("New chatwoot inbox created for deltawoot, please add agents to it here: %s", link)
 
-    def create_contact_if_not_exists(self, email: str, name: str = None):
-        contact = self.get_contact(email)
+    def create_contact_if_not_exists(self, email: str, name: str = None) -> dict:
+        """Get a woot contact for a delta contact, create it if necessary.
+
+        :param email: the last seen email address of the contact
+        :param name: the display name of the contact
+        :return: the chatwoot contact in json format
+        """
+        contact = self.search_contact(email)
         if not contact:
             if not name:
                 name = email
-            contact = self.create_contact(email, name)
+            contact = self.create_contact(name)
         return contact
 
-    def create_contact(self, email: str, name: str):
-        payload = dict(inbox_id=self.inbox_id, email=email, name=name)
+    def create_contact(self, name: str):
+        payload = dict(inbox_id=self.inbox_id, name=name)
         url = f"{self.baseurl}/accounts/{self.account_id}/contacts"
         r = requests.post(url, json=payload, headers=self.headers)
         r.raise_for_status()
-        return r.json()["payload"]["contact"]
+        return r.json()["payload"][0]
 
-    def get_contact(self, email: str) -> list:
+    def get_contact(self, woot_contact_id: int) -> dict:
+        url = f"{self.baseurl}/accounts/{self.account_id}/contacts/{woot_contact_id}"
+        r = requests.get(url, headers=self.headers)
+        r.raise_for_status()
+        return r.json()['payload']
+
+    def search_contact(self, email: str) -> list:
         url = f"{self.baseurl}/accounts/{self.account_id}/contacts/search"
         payload = dict(q=email, sort='email')
         r = requests.get(url, json=payload, headers=self.headers)
@@ -136,6 +150,43 @@ class Woot:
             }
             r = requests.post(url, json=payload, headers=self.headers)
         r.raise_for_status()
+
+
+def get_contact_mapping(account: Account, delta_id: int = None, woot_id: int = None) -> (int | None, int | None):
+    """For either a Delta Chat contact ID or Chatwoot contact ID, get a contact mapping which involves both.
+    If mapping entry doesn't exist yet, create an empty mapping list in the Delta Chat config table.
+
+    :param account: the Delta Chat account object
+    :param delta_id: the ID of a Delta Chat contact
+    :param woot_id: the ID of a Chatwoot contact
+    :return: a tuple with (Delta Chat contact ID, Chatwoot contact ID)
+    """
+    mappings_json = account.get_config("ui.deltawoot_mappings")
+    if mappings_json:
+        mappings = json.loads(mappings_json)
+        for m in mappings:
+            if m[0] == delta_id or m[1] == woot_id:
+                return int(m[0]), int(m[1])
+    else:
+        print("Initializing Delta/Chatwoot contact mappings in the Delta Chat config table")
+        account.set_config("ui.deltawoot_mappings", json.dumps([]))
+    return None, None
+
+
+def add_contact_mapping(account: Account, delta_id: int, woot_id: int):
+    """Update the Delta/Chatwoot contact mappings with a new mapping."""
+    mappings_json = account.get_config("ui.deltawoot_mappings")
+    if not mappings_json:
+        print("Initializing Delta/Chatwoot contact mappings in the Delta Chat config table")
+        mappings = []
+    else:
+        mappings = json.loads(mappings_json)
+    assert get_contact_mapping(account, delta_id=delta_id) == (None, None), \
+        f"Chatwoot contact for Delta contact {delta_id} already exists"
+    assert get_contact_mapping(account, woot_id=woot_id) == (None, None), \
+        f"Delta contact for Chatwoot contact {woot_id} already exists"
+    mappings.append((delta_id, woot_id))
+    account.set_config("ui.deltawoot_mappings", json.dumps(mappings))
 
 
 def get_pass(filename: str) -> str:

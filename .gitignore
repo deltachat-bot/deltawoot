@@ -5,3 +5,4 @@ accounts/
 build/
 green-check-chain.png
 dist/
+.tox/

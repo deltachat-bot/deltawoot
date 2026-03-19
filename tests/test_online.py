@@ -20,7 +20,7 @@ def test_send_message(delta, woot, lp):
 
     wcontact = None
     while not wcontact:
-        wcontact = woot.get_contact(delta.get_config('addr'))
+        wcontact = woot.search_contact(delta.get_config('addr'))
         time.sleep(1)  # let's avoid rate limits
     wconversations = []
     while not wconversations:
@@ -83,4 +83,4 @@ def test_leave_groups(delta, woot, lp):
     delta.wait_for_incoming_msg()
     assert len(dgroup.get_contacts()) == 1
 
-    assert not woot.get_contact(delta.get_config('addr'))
+    assert not woot.search_contact(delta.get_config('addr'))

@@ -8,6 +8,8 @@ import deltachat_rpc_client
 from flask import Flask, request
 import requests
 
+from deltawoot.woot import get_contact_mapping
+
 
 def create_app(ac: deltachat_rpc_client.Account):
     app = Flask("deltawoot-webhook")
@@ -24,10 +26,11 @@ def create_app(ac: deltachat_rpc_client.Account):
             return "ignoring message from other Inbox"
         if not request.json.get('conversation'):
             return "message was from outside contact"
-        email = request.json['conversation']['meta']['sender']['email']
+        woot_contact_id = int(request.json['conversation']['meta']['sender']['id'])
         message = request.json['conversation']['messages'][0]
-        if message['sender'].get('email') != email:
-            chat = ac.create_contact(email).create_chat()
+        if int(message['sender'].get('id')) != woot_contact_id:
+            dc_id, _ = get_contact_mapping(ac, woot_id=woot_contact_id)
+            chat = ac.get_contact_by_id(dc_id).create_chat()
             text = message['processed_message_content']
             if text:
                 chat.send_text(text)
