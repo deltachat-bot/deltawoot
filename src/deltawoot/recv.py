@@ -7,7 +7,7 @@ from deltachat_rpc_client import Bot, DeltaChat, EventType, Rpc, events
 from deltachat_rpc_client.const import ChatType
 import sentry_sdk
 
-from deltawoot.woot import get_woot
+from deltawoot.woot import get_woot, get_contact_mapping, add_contact_mapping
 from deltawoot.send import create_app
 
 hooks = events.HookCollection()
@@ -52,10 +52,12 @@ def pass_delta_to_woot(event):
 
     woot = snapshot.chat.account.woot
     sender = snapshot.sender.get_snapshot()
-    woot_contact = woot.create_contact_if_not_exists(
-        sender.address,
-        sender.display_name,
-    )
+    _, woot_contact_id = get_contact_mapping(snapshot.chat.account, delta_id=sender.id)
+    if woot_contact_id:
+        woot_contact = woot.get_contact(woot_contact_id)
+    else:
+        woot_contact = woot.create_contact_if_not_exists(sender.address, sender.display_name)
+        add_contact_mapping(snapshot.chat.account, int(sender.id), int(woot_contact["id"]))
     woot_conv = woot.create_conversation_if_not_exists(woot_contact)
     file_type = snapshot.get('view_type').lower()
     if file_type == "voice" or file_type == "audio":

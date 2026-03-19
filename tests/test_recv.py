@@ -1,14 +1,14 @@
 import os
 
 import pytest
-from deltachat_rpc_client.pytestplugin import get_temp_credentials, acfactory
+from deltachat_rpc_client.pytestplugin import acfactory
 from deltachat_rpc_client import Rpc, AttrDict, EventType, Message
 from deltachat_rpc_client.rpc import JsonRpcError
 from deltachat_rpc_client.events import RawEvent
 
 from deltawoot.recv import (
     get_bot, get_config_from_env, configure_bot, pass_delta_to_woot, log_event,
-    DEFAULT_AVATAR_PATH, DEFAULT_LEAVE_MSG, DEFAULT_HELP_MSG
+    DEFAULT_AVATAR_PATH, DEFAULT_LEAVE_MSG, DEFAULT_HELP_MSG,
 )
 from deltawoot.send import download_file
 
@@ -39,7 +39,8 @@ def test_dont_pass_info_messages(acfactory):
     assert not pass_delta_to_woot(event)
 
 
-def test_config_options(bot_addr, monkeypatch, tmp_path):
+@pytest.mark.timeout(25)
+def test_config_options(bot_addr, monkeypatch, tmp_path, acfactory):
     cwd = os.getcwd()
     os.chdir(tmp_path)
 
@@ -72,15 +73,15 @@ def test_config_options(bot_addr, monkeypatch, tmp_path):
         monkeypatch.setenv('DELTAWOOT_LEAVE_MSG', new_leave_msg)
         monkeypatch.setenv('DELTAWOOT_HELP_MSG', new_help_msg)
         monkeypatch.setenv('DELTAWOOT_NAME', new_display_name)
-        creds = get_temp_credentials()
-        monkeypatch.setenv('DELTAWOOT_ADDR', creds['email'])
-        monkeypatch.setenv('DELTAWOOT_PASSWORD', creds['password'])
+        email, password = acfactory.get_credentials()
+        monkeypatch.setenv('DELTAWOOT_ADDR', email)
+        monkeypatch.setenv('DELTAWOOT_PASSWORD', password)
 
         config = get_config_from_env(bot_addr)
         configure_bot(bot, config)
 
-        assert config.get('user') == creds['email'] == bot.account.get_config('addr')
-        assert config.get('password') == creds['password'] == bot.account.get_config('mail_pw')
+        assert config.get('user') == email == bot.account.get_config('addr')
+        assert config.get('password') == password == bot.account.get_config('mail_pw')
         assert config.get('displayname') == new_display_name == bot.account.get_config('displayname')
         assert config.get('avatar_path') == new_avatar_path
         assert config.get('leave_msg') == new_leave_msg
