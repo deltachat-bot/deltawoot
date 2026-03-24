@@ -26,7 +26,7 @@ def log_event(event):
         logging.warning(event.msg)
     if event.kind == EventType.SECUREJOIN_INVITER_PROGRESS:
         if event.progress == 1000:
-            contact = event.account.create_contact(event.contact_id)
+            contact = event.account.get_contact_by_id(event.contact_id)
             chat = contact.create_chat()
             chat.send_text(event.account.deltawoot_config.get('help_msg'))
 
@@ -95,8 +95,10 @@ def get_config_from_env(addr: str) -> dict:
 
 
 def configure_bot(bot, config):
-    user = config.get('user')
-    password = config.get('password')
+    user = config.get("user")
+    password = config.get("password")
+    assert user, "Missing email address."
+    assert password, "Missing password."
     bot.configure(user, password)
 
     bot.account.set_config('displayname', config.get('displayname'))

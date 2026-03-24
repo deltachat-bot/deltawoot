@@ -69,15 +69,15 @@ class Woot:
         if not contact:
             if not name:
                 name = email
-            contact = self.create_contact(name)
+            contact = self.create_contact(email, name)
         return contact
 
-    def create_contact(self, name: str):
-        payload = dict(inbox_id=self.inbox_id, name=name)
+    def create_contact(self, email: str, name: str):
+        payload = dict(inbox_id=self.inbox_id, email=email, name=name)
         url = f"{self.baseurl}/accounts/{self.account_id}/contacts"
         r = requests.post(url, json=payload, headers=self.headers)
         r.raise_for_status()
-        return r.json()["payload"][0]
+        return r.json()["payload"]["contact"]
 
     def get_contact(self, woot_contact_id: int) -> dict:
         url = f"{self.baseurl}/accounts/{self.account_id}/contacts/{woot_contact_id}"
@@ -97,8 +97,9 @@ class Woot:
     def create_conversation_if_not_exists(self, contact: dict) -> dict:
         conversations = self.get_conversations(contact)
         for conversation in conversations:
-            if conversation['messages'][0]['inbox_id'] == self.inbox_id:
-                return conversation
+            for message in conversation.get("messages"):
+                if message["inbox_id"] == self.inbox_id:
+                    return conversation
         else:
             source_id = self.get_source_id_from_contact(contact)
             payload = dict(
@@ -181,10 +182,11 @@ def add_contact_mapping(account: Account, delta_id: int, woot_id: int):
         mappings = []
     else:
         mappings = json.loads(mappings_json)
-    assert get_contact_mapping(account, delta_id=delta_id) == (None, None), \
-        f"Chatwoot contact for Delta contact {delta_id} already exists"
-    assert get_contact_mapping(account, woot_id=woot_id) == (None, None), \
-        f"Delta contact for Chatwoot contact {woot_id} already exists"
+    no_chatwoot_contact = get_contact_mapping(account, delta_id=delta_id) == (None, None)
+    assert no_chatwoot_contact, f"Chatwoot contact for Delta contact {delta_id} already exists"
+    no_delta_contact = get_contact_mapping(account, woot_id=woot_id) == (None, None)
+    assert no_delta_contact, f"Delta contact for Chatwoot contact {woot_id} already exists"
+
     mappings.append((delta_id, woot_id))
     account.set_config("ui.deltawoot_mappings", json.dumps(mappings))
 

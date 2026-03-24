@@ -40,7 +40,7 @@ def test_dont_pass_info_messages(acfactory):
 
 
 @pytest.mark.timeout(25)
-def test_config_options(bot_addr, monkeypatch, tmp_path, acfactory):
+def test_config_options(bot_addr, monkeypatch, tmp_path):
     cwd = os.getcwd()
     os.chdir(tmp_path)
 
@@ -55,7 +55,7 @@ def test_config_options(bot_addr, monkeypatch, tmp_path, acfactory):
         bot = get_bot(rpc)
 
         config = get_config_from_env(bot_addr)
-        with pytest.raises(JsonRpcError, match="Missing email address."):
+        with pytest.raises(AssertionError, match="Missing email address."):
             configure_bot(bot, config)
 
         assert not config.get('user') or bot.account.get_config('addr')
@@ -73,7 +73,7 @@ def test_config_options(bot_addr, monkeypatch, tmp_path, acfactory):
         monkeypatch.setenv('DELTAWOOT_LEAVE_MSG', new_leave_msg)
         monkeypatch.setenv('DELTAWOOT_HELP_MSG', new_help_msg)
         monkeypatch.setenv('DELTAWOOT_NAME', new_display_name)
-        email, password = acfactory.get_credentials()
+        email, password = "oiqwoiqwj@nine.testrun.org", "asdalsdimofm2f"
         monkeypatch.setenv('DELTAWOOT_ADDR', email)
         monkeypatch.setenv('DELTAWOOT_PASSWORD', password)
 
