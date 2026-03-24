@@ -28,7 +28,7 @@ def log_event(event):
         if event.progress == 1000:
             contact = event.account.get_contact_by_id(event.contact_id)
             chat = contact.create_chat()
-            chat.send_text(event.account.deltawoot_config.get('help_msg'))
+            chat.send_text(event.account.deltawoot_config.get("help_msg"))
 
 
 @hooks.on(events.RawEvent(EventType.ERROR))
@@ -59,13 +59,13 @@ def pass_delta_to_woot(event):
         woot_contact = woot.create_contact_if_not_exists(sender.address, sender.display_name)
         add_contact_mapping(snapshot.chat.account, int(sender.id), int(woot_contact["id"]))
     woot_conv = woot.create_conversation_if_not_exists(woot_contact)
-    file_type = snapshot.get('view_type').lower()
+    file_type = snapshot.get("view_type").lower()
     if file_type == "voice" or file_type == "audio":
-        file_type = "audio/" + snapshot.get('file').split(".")[-1]
+        file_type = "audio/" + snapshot.get("file").split(".")[-1]
     woot.send_message(
         woot_conv,
         snapshot.text,
-        filename=snapshot.get('file'),
+        filename=snapshot.get("file"),
         mime_type=file_type,
     )
 
@@ -73,7 +73,7 @@ def pass_delta_to_woot(event):
 @hooks.on(events.NewMessage(command="/help"))
 def help_command(event):
     snapshot = event.message_snapshot
-    snapshot.chat.send_text(snapshot.chat.account.deltawoot_config.get('help_msg'))
+    snapshot.chat.send_text(snapshot.chat.account.deltawoot_config.get("help_msg"))
 
 
 def get_leave_msg():
@@ -82,7 +82,7 @@ def get_leave_msg():
 
 def get_config_from_env(addr: str) -> dict:
     displayname = os.getenv("DELTAWOOT_NAME", addr)
-    help_msg = DEFAULT_HELP_MSG % (displayname, )
+    help_msg = DEFAULT_HELP_MSG % (displayname,)
 
     return dict(
         user=os.getenv("DELTAWOOT_ADDR"),
@@ -101,8 +101,8 @@ def configure_bot(bot, config):
     assert password, "Missing password."
     bot.configure(user, password)
 
-    bot.account.set_config('displayname', config.get('displayname'))
-    bot.account.set_avatar(config.get('avatar_path'))
+    bot.account.set_config("displayname", config.get("displayname"))
+    bot.account.set_avatar(config.get("avatar_path"))
     bot.account.deltawoot_config = config
     return bot
 
@@ -111,8 +111,8 @@ def get_flaskthread(bot):
     flaskapp = create_app(bot.account)
     return threading.Thread(
         target=lambda: flaskapp.run(
-            host='0.0.0.0',
-            port='5000',
+            host="0.0.0.0",
+            port="5000",
             debug=True,
             use_reloader=False,
         ),
@@ -148,11 +148,11 @@ def main():
     with Rpc() as rpc:
         bot = get_bot(rpc)
 
-        config = get_config_from_env(bot.account.get_config('addr'))
+        config = get_config_from_env(bot.account.get_config("addr"))
         bot = configure_bot(bot, config)
 
-        bot.account.woot = get_woot(inbox_id=bot.account.get_config('ui.woot_inbox_id'))
-        bot.account.set_config('ui.woot_inbox_id', str(bot.account.woot.inbox_id))
+        bot.account.woot = get_woot(inbox_id=bot.account.get_config("ui.woot_inbox_id"))
+        bot.account.set_config("ui.woot_inbox_id", str(bot.account.woot.inbox_id))
 
         joincode = bot.account.get_qr_code()
         print("You can publish this invite code to your users: " + joincode, file=sys.stderr)
