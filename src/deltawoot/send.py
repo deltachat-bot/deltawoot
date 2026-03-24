@@ -54,7 +54,8 @@ def download_file(url: str) -> str:
     :param url: the URL of the file, usually https://chatwoot.testrun.org/rails/active_storage/blobs/...
     :return: the file name of the file on the system.
     """
-    r = requests.get(url, stream=True)
+    user_agent = {"User-Agent": "Deltawoot Bot (https://github.com/deltachat-bot/deltawoot/)"}
+    r = requests.get(url, stream=True, headers=user_agent)
     dir_name = os.path.join(os.getcwd(), "files", "attachments")
     Path(dir_name).mkdir(parents=True, exist_ok=True)
     file_name = os.path.join(dir_name, unquote(url.split("/")[-1]))

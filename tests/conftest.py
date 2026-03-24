@@ -22,12 +22,17 @@ def delta(acfactory):
 
 
 @pytest.fixture()
+def bot_invite():
+    return os.getenv("DELTAWOOT_INVITE")
+
+
+@pytest.fixture()
 def bot_addr():
     return os.getenv("DELTAWOOT_ADDR", "deltawoot@nine.testrun.org")
 
 
 @pytest.fixture()
-def woot(bot_addr, monkeypatch):
+def woot(bot_invite, monkeypatch):
     path = os.getenv('PATH')
     inbox_id = os.getenv('WOOT_INBOX_ID')
     account_id = os.getenv('WOOT_ACCOUNT_ID', '1')
@@ -49,7 +54,7 @@ def woot(bot_addr, monkeypatch):
     monkeypatch.setenv('PATH', path)
     woot = get_woot(inbox_id=inbox_id, inbox_name="testing")
 
-    woot.addr = bot_addr
+    woot.invite = bot_invite
     return woot
 
 
