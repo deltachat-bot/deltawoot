@@ -49,7 +49,7 @@ class Woot:
             channel=dict(
                 type="api",
                 webhook_url="",
-            )
+            ),
         )
         url = f"{self.baseurl}/accounts/{self.account_id}/inboxes"
         r = requests.post(url, json=payload, headers=self.headers)
@@ -83,15 +83,15 @@ class Woot:
         url = f"{self.baseurl}/accounts/{self.account_id}/contacts/{woot_contact_id}"
         r = requests.get(url, headers=self.headers)
         r.raise_for_status()
-        return r.json()['payload']
+        return r.json()["payload"]
 
     def search_contact(self, email: str) -> list:
         url = f"{self.baseurl}/accounts/{self.account_id}/contacts/search"
-        payload = dict(q=email, sort='email')
+        payload = dict(q=email, sort="email")
         r = requests.get(url, json=payload, headers=self.headers)
         r.raise_for_status()
-        for contact in r.json()['payload']:
-            if contact['email'] == email:
+        for contact in r.json()["payload"]:
+            if contact["email"] == email:
                 return contact
 
     def create_conversation_if_not_exists(self, contact: dict) -> dict:
@@ -116,38 +116,36 @@ class Woot:
         url = f"{self.baseurl}/accounts/{self.account_id}/contacts/{contact['id']}/conversations"
         r = requests.get(url, headers=self.headers)
         r.raise_for_status()
-        return r.json()['payload']
+        return r.json()["payload"]
 
     def get_source_id_from_contact(self, contact):
         for inbox in contact["contact_inboxes"]:
-            if inbox['inbox']['id'] == self.inbox_id:
+            if inbox["inbox"]["id"] == self.inbox_id:
                 return inbox["source_id"]
-        return contact['contact_inboxes'][0]['source_id']  # if this fails, create conversation in web interface
+        return contact["contact_inboxes"][0]["source_id"]  # if this fails, create conversation in web interface
 
     def get_messages(self, conversation: dict) -> list:
-        payload = dict(
-            inbox_id=self.inbox_id
-        )
+        payload = dict(inbox_id=self.inbox_id)
         url = f"{self.baseurl}/accounts/{self.account_id}/conversations/{conversation['id']}/messages"
         r = requests.get(url, json=payload, headers=self.headers)
         r.raise_for_status()
-        return r.json()['payload']
+        return r.json()["payload"]
 
-    def send_message(self, conversation, content, message_type='incoming', filename=None, mime_type=None):
+    def send_message(self, conversation, content, message_type="incoming", filename=None, mime_type=None):
         url = f"{self.baseurl}/accounts/{self.account_id}/conversations/{conversation['id']}/messages"
         print("mime_type:", mime_type, file=sys.stderr)
         if filename:
-            file = {'attachments[]': (filename, open(filename, 'rb'), mime_type)}
+            file = {"attachments[]": (filename, open(filename, "rb"), mime_type)}
             data = {
-                'content': content,
-                'message_type': message_type,
-                'file_type': mime_type,
+                "content": content,
+                "message_type": message_type,
+                "file_type": mime_type,
             }
             r = requests.post(url, headers=self.headers, files=file, data=data)
         else:
             payload = {
-                'content': content,
-                'message_type': message_type,
+                "content": content,
+                "message_type": message_type,
             }
             r = requests.post(url, json=payload, headers=self.headers)
         r.raise_for_status()
@@ -194,13 +192,13 @@ def add_contact_mapping(account: Account, delta_id: int, woot_id: int):
 def get_pass(filename: str) -> str:
     """Get the data from the password manager."""
     r = subprocess.run(["pass", "show", filename], capture_output=True, check=True)
-    return r.stdout.decode('utf-8').strip()
+    return r.stdout.decode("utf-8").strip()
 
 
 if __name__ == "__main__":
     w = get_woot()
-    for contact in w.create_contact_if_not_exists('nami@systemli.org'):
-        print("Sending message to", contact['email'])
+    for contact in w.create_contact_if_not_exists("nami@systemli.org"):
+        print("Sending message to", contact["email"])
         conv = w.create_conversation_if_not_exists(contact)
         for msg in w.get_messages(conv):
             pprint(msg)
