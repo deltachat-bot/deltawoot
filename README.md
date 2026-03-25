@@ -171,16 +171,15 @@ to find out the join code of the bot:
 ```
 2024-07-10T14:20:22.427084078Z INFO:root:Running deltachat core v1.141.2
 2024-07-10T14:20:22.820477302Z INFO:root:New chatwoot inbox created for deltawoot, please add agents to it here: https://example.org/app/accounts/1/settings/inboxes/1
-2024-07-10T14:20:22.431288436Z You can publish this invite code to your users: OPENPGP4FPR:AA5FDEF02BFC355FDEA09FF4CA4AFCD2F065E613#a=deltawoot%40nine.testrun.org&n=deltawoot%40nine.testrun.org&i=q4DhTVr1T2A&s=mT3Bo9JDdVx
+2024-07-10T14:20:22.431288436Z You can publish this invite code to your users: https://i.delta.chat/#AA5FDEF02BFC355FDEA09FF4CA4AFCD2F065E613&a=deltawoot%40nine.testrun.org&n=deltawoot%40nine.testrun.org&i=q4DhTVr1T2A&s=mT3Bo9JDdVx
 2024-07-10T14:20:22.437551296Z  * Serving Flask app 'deltawoot-webhook'
 2024-07-10T14:20:22.438395066Z  * Debug mode: on
 2024-07-10T14:20:22.451052630Z INFO:root:src/securejoin.rs:126: Generated QR code.
 2024-07-10T14:20:22.451080018Z INFO:root:src/scheduler.rs:66: starting IO
 ```
 
-Copy-paste the `OPENPGP4FPR:` and everything behind it
-into the form at <https://i.delta.chat>
-to generate an invite link which you can advertise on your contact page.
+You can advertise the `https://i.delta.chat` link
+on your contact page.
 
 ## Development
 
@@ -203,19 +202,19 @@ You can run the tests with `pytest`.
 
 ## Release Checklist
 
-- [ ] `git checkout -b prepare-1.x.x`
+- [ ] `git checkout -b prepare-2.x.x`
 - [ ] Update version number in changelog
 - [ ] Update version number in setup.cfg
-- [ ] `git commit -am "prepare 1.x.x release"`
-- [ ] `git tag 1.x.x`
-- [ ] `git push --tags -u origin prepare-1.x.x`
+- [ ] `git commit -am "prepare 2.x.x release"`
+- [ ] `git tag 2.x.x`
+- [ ] `git push --tags -u origin prepare-2.x.x`
 - [ ] open a PR, copy this checklist there
 - [ ] `python -m build`
 - [ ] `twine check dist/*`
 - [ ] `twine upload dist/*`
 - [ ] `sudo docker build -t missytake/deltawoot .`
-- [ ] `sudo docker tag missytake/deltawoot missytake/deltawoot:1.x.x`
-- [ ] `sudo docker push missytake/deltawoot:1.x.x`
+- [ ] `sudo docker tag missytake/deltawoot missytake/deltawoot:2.x.x`
+- [ ] `sudo docker push missytake/deltawoot:2.x.x`
 - [ ] `sudo docker push missytake/deltawoot:latest`
 - [ ] merge this PR and make a github release
 
