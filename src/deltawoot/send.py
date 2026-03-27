@@ -8,7 +8,7 @@ import deltachat_rpc_client
 from flask import Flask, request
 import requests
 
-from deltawoot.woot import get_contact_mapping
+from deltawoot.woot import get_contact_mapping, add_contact_mapping
 
 
 def create_app(ac: deltachat_rpc_client.Account):
@@ -30,7 +30,13 @@ def create_app(ac: deltachat_rpc_client.Account):
         message = request.json["conversation"]["messages"][0]
         if int(message["sender"].get("id")) != woot_contact_id:
             dc_id, _ = get_contact_mapping(ac, woot_id=woot_contact_id)
-            chat = ac.get_contact_by_id(dc_id).create_chat()
+            if dc_id:
+                dcontact = ac.get_contact_by_id(dc_id)
+            else:
+                email = request.json["conversation"]["meta"]["sender"]["email"]
+                dcontact = ac.get_contact_by_addr(email)
+                add_contact_mapping(ac, dcontact.id, woot_contact_id)
+            chat = dcontact.create_chat()
             text = message["processed_message_content"]
             if text:
                 chat.send_text(text)
