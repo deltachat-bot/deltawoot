@@ -23,6 +23,10 @@ If the bot is running on the same docker host as the chatwoot instance,
 enter `http://deltawoot.internal:5000` (deltawoot.internal is the container name),
 and enable the `message_created` option.
 
+*Note: if you also have an inbox for incoming messages,
+the webhook can lead to duplicate outgoing messages.
+Deleting the webhook fixes this.*
+
 
 ### Add deltawoot to chatwoot's docker-compose.yml
 
