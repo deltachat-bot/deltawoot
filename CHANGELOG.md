@@ -2,10 +2,11 @@
 
 ## Unreleased Changes
 
-## 2.43.0
+## 2.35.0
 
 - Upgrade core to v2 to stay compatible with anonymous recipients
   [#20](https://github.com/deltachat-bot/deltawoot/pull/20)
+  [#21](https://github.com/deltachat-bot/deltawoot/pull/21)
 
 ## 1.3.1
 
