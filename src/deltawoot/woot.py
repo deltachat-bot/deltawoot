@@ -4,6 +4,7 @@ import os
 import requests
 import subprocess
 import sys
+import time
 from pprint import pprint
 
 from deltachat_rpc_client import Account
@@ -65,11 +66,18 @@ class Woot:
         :param name: the display name of the contact
         :return: the chatwoot contact in json format
         """
-        contact = self.search_contact(email)
+        try:
+            contact = self.search_contact(email)
+        except requests.exceptions.HTTPError:
+            contact = None
         if not contact:
             if not name:
                 name = email
-            contact = self.create_contact(email, name)
+            try:
+                contact = self.create_contact(email, name)
+            except requests.exceptions.HTTPError:
+                time.sleep(5)  # wait a bit for workers to become available
+                contact = self.create_contact(email, name)
         return contact
 
     def create_contact(self, email: str, name: str):
