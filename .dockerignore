@@ -41,3 +41,5 @@ var/
 .vscode/
 
 green-check-chain.png
+accounts/
+.env
