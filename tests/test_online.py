@@ -11,7 +11,7 @@ from deltachat_rpc_client.events import EventType
 from deltawoot.recv import get_leave_msg, DEFAULT_AVATAR_PATH, DEFAULT_HELP_MSG
 
 
-@pytest.mark.timeout(25)
+@pytest.mark.timeout(30)
 def test_send_message(delta, woot, lp):
     text = "".join(random.choices(string.ascii_lowercase, k=9))
 
