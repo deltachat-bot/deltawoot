@@ -66,30 +66,29 @@ class Woot:
         :param name: the display name of the contact
         :return: the chatwoot contact in json format
         """
-        try:
-            contact = self.search_contact(email)
-        except requests.exceptions.HTTPError:
-            contact = None
+        contact = self.search_contact(email)
         if not contact:
             if not name:
                 name = email
-            try:
-                contact = self.create_contact(email, name)
-            except requests.exceptions.HTTPError:
-                time.sleep(5)  # wait a bit for workers to become available
-                contact = self.create_contact(email, name)
+            contact = self.create_contact(email, name)
         return contact
 
     def create_contact(self, email: str, name: str):
         payload = dict(inbox_id=self.inbox_id, email=email, name=name)
         url = f"{self.baseurl}/accounts/{self.account_id}/contacts"
         r = requests.post(url, json=payload, headers=self.headers)
+        if r.status_code == 500:
+            time.sleep(5)  # try again later in case of timeout
+            r = requests.post(url, json=payload, headers=self.headers)
         r.raise_for_status()
         return r.json()["payload"]["contact"]
 
     def get_contact(self, woot_contact_id: int) -> dict:
         url = f"{self.baseurl}/accounts/{self.account_id}/contacts/{woot_contact_id}"
         r = requests.get(url, headers=self.headers)
+        if r.status_code == 500:
+            time.sleep(5)  # try again later in case of timeout
+            r = requests.get(url, headers=self.headers)
         r.raise_for_status()
         return r.json()["payload"]
 
@@ -97,6 +96,9 @@ class Woot:
         url = f"{self.baseurl}/accounts/{self.account_id}/contacts/search"
         payload = dict(q=email, sort="email")
         r = requests.get(url, json=payload, headers=self.headers)
+        if r.status_code == 500:
+            time.sleep(5)  # try again later in case of timeout
+            r = requests.get(url, json=payload, headers=self.headers)
         r.raise_for_status()
         for contact in r.json()["payload"]:
             if contact["email"] == email:
