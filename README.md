@@ -218,6 +218,7 @@ You can run the tests with `pytest`.
 - [ ] `twine upload dist/*`
 - [ ] `sudo docker build -t missytake/deltawoot .`
 - [ ] `sudo docker tag missytake/deltawoot missytake/deltawoot:2.x.x`
+- [ ] `sudo docker tag missytake/deltawoot missytake/deltawoot:latest`
 - [ ] `sudo docker push missytake/deltawoot:2.x.x`
 - [ ] `sudo docker push missytake/deltawoot:latest`
 - [ ] merge this PR and make a github release
